@@ -1,31 +1,25 @@
 # AI52_public-transport-metaheuristics
+Optimisation des horaires de transport public utilisant divers algorithmes métaheuristiques (Recuit Simulé, Algorithme Génétique, Recherche Tabou, Optimisation par Colonies de Fourmis, Optimisation par Essaim Particulaire).
 
-Optimization of public transport schedules using various metaheuristic algorithms (Simulated Annealing, Genetic Algorithm, Tabu Search, Ant Colony Optimization, Particle Swarm Optimization).
+## Aperçu du Projet
+Implémentation d'algorithmes métaheuristiques pour optimiser les horaires des bus publics. L'objectif est de minimiser les temps d'attente des passagers tout en respectant les contraintes de disponibilité des véhicules.
 
-## Project Overview
+### Description du Problème
+- Optimiser les horaires des bus sur plusieurs arrêts
+- Minimiser le temps d'attente global des passagers
+- Gérer plusieurs itinéraires par véhicule
+- Tenir compte des contraintes de maintenance et de temps de transit
+- Respecter les heures d'exploitation pour chaque arrêt
 
-Implementation of metaheuristic algorithms to optimize public bus transport schedules. The goal is to minimize passenger waiting times while respecting vehicle availability constraints.
+## Algorithmes
+Implémentation et comparaison de 5 approches métaheuristiques :
+1. Recuit Simulé (SA)
+2. Algorithme Génétique (GA)
+3. Recherche Tabou (TS)
+4. Optimisation par Colonies de Fourmis (ACO)
+5. Optimisation par Essaim Particulaire (PSO)
 
-### Problem Description
-
-- Optimize bus schedules across multiple stops
-- Minimize overall passenger waiting time
-- Handle multiple routes per vehicle
-- Consider maintenance and transit time constraints
-- Respect operating hours for each stop
-
-## Algorithms
-
-Implementation and comparison of 5 metaheuristic approaches:
-
-1. Simulated Annealing (SA)
-2. Genetic Algorithm (GA)
-3. Tabu Search (TS)
-4. Ant Colony Optimization (ACO)
-5. Particle Swarm Optimization (PSO)
-
-## Project Structure
-
+## Structure du Projet
 ```
 public-transport-metaheuristics/
 ├── src/
@@ -48,37 +42,31 @@ public-transport-metaheuristics/
     └── comparison.ipynb
 ```
 
-## Installation
 
+## Prérequis du Projet
+- Python 3.8+
+- NumPy
+- Pandas
+- Matplotlib
+- Jupyter (pour la visualisation des résultats)
+
+
+## Installation
 ```bash
 git clone https://github.com/yourusername/public-transport-metaheuristics.git
 cd public-transport-metaheuristics
 pip install -r requirements.txt
 ```
 
-## Usage
-
+## Utilisation
 ```python
 from src.algorithms import SimulatedAnnealing, GeneticAlgorithm
 from src.models import Schedule
 
-# Load problem instance
+# Charger l'instance du problème
 schedule = Schedule.from_json('data/sample_instance.json')
 
-# Run optimization
+# Exécuter l'optimisation
 sa_solution = SimulatedAnnealing(schedule).optimize()
 ga_solution = GeneticAlgorithm(schedule).optimize()
 ```
-
-## Project Requirements
-
-- Python 3.8+
-- NumPy
-- Pandas
-- Matplotlib
-- Jupyter (for results visualization)
-
-
-## License
-
-MIT License
