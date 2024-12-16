@@ -1,4 +1,7 @@
 import argparse
+
+from src.algorithms.RT import TabuSearch
+
 """ 
 from src.algorithms import (
     SimulatedAnnealing,
@@ -25,7 +28,7 @@ def parse_args():
     parser.add_argument('--algorithm', type=str, default='all',
                         choices=['sa', 'ga', 'ts', 'aco', 'pso', 'all'],
                         help='Metaheuristic algorithm to use')
-    parser.add_argument('--data', type=str, default='data/sample_instance.json',
+    parser.add_argument('--data', type=str, default='data/instance.json',
                         help='Path to problem instance')
     parser.add_argument('--output', type=str, default='results/comparison.json',
                         help='Output file path')
@@ -34,25 +37,28 @@ def parse_args():
 
 def main():
     args = parse_args()
-    schedule = Schedule.from_json(args.data)
+    #Create initial schdule from data
+
+    initial_schedule = Schedule.deserialize(args.data)
 
     algorithms = {
-        'sa': SimulatedAnnealing,
-        'ga': GeneticAlgorithm,
+        #'sa': SimulatedAnnealing,
+        #'ga': GeneticAlgorithm,
         'ts': TabuSearch,
-        'aco': AntColony,
-        'pso': ParticleSwarm
+        #'aco': AntColony,
+        #'pso': ParticleSwarm
     }
+
 
     results = {}
 
     if args.algorithm == 'all':
         for name, algo in algorithms.items():
             logger.info(f"Running {name.upper()} optimization")
-            optimizer = algo(schedule)
+            optimizer = algo(initial_schedule)
             results[name] = optimizer.optimize()
     else:
-        optimizer = algorithms[args.algorithm](schedule)
+        optimizer = algorithms[args.algorithm](initial_schedule)
         results[args.algorithm] = optimizer.optimize()
 
     #Evaluator.evaluate_results(results, args.output)
