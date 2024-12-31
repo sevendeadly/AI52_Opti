@@ -1,18 +1,13 @@
 from src.models.stations import generate_time_matrix
-from src.models.demand import generate_demand_sample, Demand
+from src.models.demand import generate_demand_sample
+from src.models.demand import DAYTIME
 
-time_matrix = generate_time_matrix(10)
 
-print(time_matrix)
+time_matrix = generate_time_matrix(4)
 
-demands = generate_demand_sample(time_matrix.__len__() + 1, 10)
+peak_repartition = [(DAYTIME.MORNING, 35), (DAYTIME.DAY, 15), (DAYTIME.EVENING, 35), (DAYTIME.NIGHT, 15)]
 
-result: Demand = []
+demands = generate_demand_sample(time_matrix.__len__() + 1, 10, peak_repartition)
 
-for demand in demands:
-    if demand.direction:
-        result.insert(0, demand)
-    else:
-        result.append(demand)
+print(demands)
 
-print(result)

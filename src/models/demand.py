@@ -5,6 +5,21 @@ Gilles NGASSAM & Daniel KOANGA
 
 # Librairies importation
 import random as rd
+from datetime import time
+from enum import Enum
+from collections import Counter
+
+# some constraints definitions (time in minutes)
+SERVICE_START = 6 * 60
+SERVICE_END = 24 * 60
+PEAK_TIME_INTERVALS = [(SERVICE_START, 10 * 60), (10 * 60, 16 * 60), (16 * 60, 20 * 60), (20 * 60, SERVICE_END)]
+
+# Define the daytime intervals
+class DAYTIME(Enum):
+    MORNING = 0
+    DAY = 1
+    EVENING = 2
+    NIGHT = 3
 
 # Generate a random demand sample to evaluate the fitness of a solution
 class Demand:
@@ -26,40 +41,49 @@ class Demand:
         self.direction = direction
         self.waiting_arrival = waiting_arrival
 
-    def __str__(self):
-        pass
-
     def __repr__(self):
-        return f"{"Gare TGV" if self.direction else "Valdoie"} : The passenger arrived at the boarding stop {self.boarding_stop} at {self.waiting_arrival} will ride {self.stops} stops.\n"
+        hours, minutes, seconds = self.waiting_arrival // 3600, (self.waiting_arrival % 3600) // 60, self.waiting_arrival % 60
+
+        return f"\n{"GARE TGV" if self.direction else "VALDOIE "} - boarding stop: {self.boarding_stop} arrival_time: {time(hours, minutes, seconds)} stops: {self.stops}"
 
 
 # Generate a random demand sample to evaluate the fitness of a solution
-def generate_demand_sample(num_stops: int, num_demands: int) -> list[Demand]:
+def generate_demand_sample(num_stops: int, num_demands: int, peak_repartition: list[(DAYTIME, float)]) -> list[Demand]:
     """
     Generate a random demand sample to evaluate the fitness of a solution.
 
     Args:
         num_stops (int): number of stops
         num_demands (int): number of demands to generate
+        peak_repartition (list[(DAYTIME, float)]): peak constraints with daytime intervals and associated probabilities 
 
     Returns:
-        list[int]: random demand sample
+        list[int]: random demand sample representative of the peak repartition
     """
     demand_sample: list[Demand] = []
 
-    for _ in range(num_demands):
+    # Generate the peak constraints for the whole demand sample
+    peak_times = [peak[0] for peak in peak_repartition]
+    peak_probabilities = [peak[1] for peak in peak_repartition]
+    peak_indicators = rd.choices(peak_times,peak_probabilities , k=num_demands)
+
+    print(Counter(peak_indicators))
+
+    # Process the demand generation
+    for index in range(num_demands):
         direction = rd.choice([True, False])
 
         if direction:
             boarding_stop = rd.randint(1, num_stops - 1)
         else:
             # process the backward direction (from the last stop to the first one)
-            # E.g: the stop N°4 will become the spot N°1
+            # E.g: the stop N°4 will become the stop N°1
             boarding_stop = num_stops - rd.randint(1, num_stops - 1)
         
         stops = rd.randint(1, num_stops - boarding_stop)
-        # Implement an asset who make arrival time meets the peak constraints (morning, day, evening and night) 
-        waiting_arrival = rd.randint(0, 18 * 60 * 60)  # 6am to 12am
+        # Implement an asset who make arrival time meets the peak constraints (morning, day, evening and night)
+        demand_interval = PEAK_TIME_INTERVALS[peak_indicators[index].value]
+        waiting_arrival = rd.randint(demand_interval[0] * 60, demand_interval[1] * 60)  # start and end of the selected peak interval
         
         demand_sample.append(Demand(boarding_stop, waiting_arrival, stops, direction))
 
