@@ -104,7 +104,6 @@ class TabuSearch:
                 fitness = self.eval_solution(neighbor)
 
                 #Cirtere d'aspiration: accepter nouveau tabu si meilleur que la la meilleur a present
-
                 if fitness < self.best_fitness:
                     best_neighbor = neighbor
                     best_neighbor_fitness = fitness
