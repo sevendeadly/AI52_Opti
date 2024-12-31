@@ -7,7 +7,9 @@ Gilles NGASSAM & Daniel KOANGA
 import random as rd
 import numpy as np
 from datetime import time
+from src.models.plan import Prog
 from src.models.demand import Demand
+from src.utils.time import convertTimeStamp
 
 # some constraints definitions (time in minutes)
 SERVICE_START = 6 * 60
@@ -37,35 +39,10 @@ def generate_time_matrix(num_stops: int) -> list[int]:
 
     return traveling_times_array
 
-class Bus_Slot:
-    def __init__(self, time: time, direction: bool):
-        self.time = time
-        self.direction = direction
 
-    # Calculate the duration of a bus slot in seconds
-    def process_tour_start(self) -> int:
-        return self.time.hour * 3600 + self.time.minute * 60 + self.time.second
-    
-    # Set up a representation of an solution instance
-    def __repr__(self):
-        return f"Bus - Time: {self.time} - Direction : {"GARE TGV" if self.direction else "VALDOIE "}"
-
-# Convert a timestamp in seconds to a time object
-def convertTimeStamp(timeStamp: int) -> time:
-    """
-    Convert a timestamp in seconds to a time object.
-    
-    Args:
-        timeStamp (int): timestamp in seconds
-
-    Returns:
-        time: time object
-    """
-    hours, minutes, seconds = timeStamp // 3600, (timeStamp % 3600) // 60, timeStamp % 60
-    return time(hours, minutes, seconds)
 
 # Calculate the total waiting time for a given schedule
-def process_global_waiting_time(solution : list[Bus_Slot], passengers_demand: list[Demand], time_matrix: list[int]) -> int:
+def process_global_waiting_time(solution : list[Prog], passengers_demand: list[Demand], time_matrix: list[int]) -> int:
     total_waiting_time: int = 0
     current_passengers_demand: list[Demand] = passengers_demand
     current_passengers_on_board: list[Demand] = []

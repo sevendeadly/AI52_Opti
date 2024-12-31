@@ -1,8 +1,8 @@
-from datetime import datetime, time
+from datetime import time
 from src.models.stations import generate_time_matrix
 from src.models.demand import generate_demand_sample
 from src.models.stations import process_global_waiting_time
-from src.models.stations import Bus_Slot
+from src.models.plan import Prog, Locomotion, process_required_locomotions
 from src.models.demand import DAYTIME
 
 
@@ -12,14 +12,23 @@ peak_repartition = [(DAYTIME.MORNING, 35), (DAYTIME.DAY, 15), (DAYTIME.EVENING, 
 
 demands = generate_demand_sample(time_matrix.__len__() + 1, 10, peak_repartition)
 
+tour_duration = sum(time_matrix)
 
-solution: list[Bus_Slot] = [
-    Bus_Slot(time(7,0,0), True), 
-    Bus_Slot(time(12, 0, 0), True), 
-    Bus_Slot(time(19, 0, 0), True),
-    Bus_Slot(time(8,0,0), False), 
-    Bus_Slot(time(12, 0, 0), False), 
-    Bus_Slot(time(19, 0, 0), False),
+# print(tour_duration)
+
+solution: list[Prog] = [
+    Prog(time(7,0,0), tour_duration, True),
+    Prog(time(12, 0, 0), tour_duration, True),
+    Prog(time(19, 0, 0), tour_duration, True),
+    Prog(time(7,45,0), tour_duration, True), 
+    Prog(time(8,24,0), tour_duration, False), 
+    Prog(time(12, 0, 0), tour_duration, False), 
+    Prog(time(19, 0, 0), tour_duration, False),
 ]
 
-print(process_global_waiting_time(solution, demands, time_matrix))
+for locomotion in process_required_locomotions(solution):
+    print(locomotion)
+
+print("Locomotions needed : ", process_required_locomotions(solution).__len__())
+
+# print(process_global_waiting_time(solution, demands, time_matrix))
