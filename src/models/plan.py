@@ -95,7 +95,7 @@ class Locomotion:
 
         self.sort_progs()
 
-
+    # Sort the progs in the locomotion by time
     def sort_progs(self) -> list[Prog]:
         """
         Sort the progs in the locomotion by time.

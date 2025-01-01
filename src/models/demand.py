@@ -8,11 +8,7 @@ import random as rd
 from datetime import time
 from enum import Enum
 from collections import Counter
-
-# some constraints definitions (time in minutes)
-SERVICE_START = 6 * 60
-SERVICE_END = 24 * 60
-PEAK_TIME_INTERVALS = [(SERVICE_START, 10 * 60), (10 * 60, 16 * 60), (16 * 60, 20 * 60), (20 * 60, SERVICE_END)]
+from src.utils.constants import PEAK_TIME_INTERVALS
 
 # Define the daytime intervals
 class DAYTIME(Enum):

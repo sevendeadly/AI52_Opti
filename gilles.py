@@ -5,7 +5,7 @@ from src.models.demand import generate_demand_sample
 from src.models.stations import process_global_waiting_time
 from src.models.plan import Prog, Locomotion, process_required_locomotions
 from src.models.demand import DAYTIME
-
+from src.utils.constants import LOCOMOTION_CAPACITY
 
 time_matrix = generate_time_matrix(4)
 
@@ -41,5 +41,5 @@ individual = ga.generate_individual()
 for reservation in individual:
     print(reservation)
 
-print("Global waiting time : ",process_global_waiting_time(individual, demands, time_matrix))
+print("Global waiting time : ",process_global_waiting_time(individual, demands, time_matrix, LOCOMOTION_CAPACITY))
 print("Locomotions needed :  ", process_required_locomotions(individual).__len__())

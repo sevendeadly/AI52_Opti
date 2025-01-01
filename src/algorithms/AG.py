@@ -13,7 +13,6 @@ Let's assume between midnigh and 6am, there is no bus
 # libraries importation
 from src.models.plan import Prog, is_valid_plan
 from src.models.demand import Demand
-from datetime import time
 import random as rd
 from src.utils.time import convertTimeStamp
 

@@ -10,16 +10,7 @@ from datetime import time
 from src.models.plan import Prog
 from src.models.demand import Demand
 from src.utils.time import convertTimeStamp
-
-# some constraints definitions (time in minutes)
-SERVICE_START = 6 * 60
-SERVICE_END = 24 * 60
-MIN_TIME_BETWEEN_STOPS = 3
-MAX_TIME_BETWEEN_STOPS = 10
-BUS_CAPACITY = 50
-NUM_BUS = 15
-MIN_DEMANDS = 100
-MAX_DEMANDS = 200
+from src.utils.constants import MIN_TIME_BETWEEN_STOPS, MAX_TIME_BETWEEN_STOPS, SERVICE_END
 
 # Generate a traveling time's array between two consecutives stops
 def generate_time_matrix(num_stops: int) -> list[int]:
@@ -42,7 +33,24 @@ def generate_time_matrix(num_stops: int) -> list[int]:
 
 
 # Calculate the total waiting time for a given schedule
-def process_global_waiting_time(solution : list[Prog], passengers_demand: list[Demand], time_matrix: list[int]) -> int:
+def process_global_waiting_time(
+        solution : list[Prog], 
+        passengers_demand: list[Demand], 
+        time_matrix: list[int], 
+        locomotion_capacity: int
+    ) -> int:
+    """
+    Calculate the total waiting time for a given schedule.
+
+    Args:
+        solution (list[Prog]): schedule to evaluate
+        passengers_demand (list[Demand]): list of passengers demand
+        time_matrix (list[int]): list of time intervals between each stop
+        locomotion_capacity (int): capacity of each locomotion
+
+    Returns:
+        int: total waiting time
+    """
     total_waiting_time: int = 0
     current_passengers_demand: list[Demand] = passengers_demand
     current_passengers_on_board: list[Demand] = []
@@ -72,7 +80,7 @@ def process_global_waiting_time(solution : list[Prog], passengers_demand: list[D
             ]
 
             # take only the passengers that can board the bus in the limit of the bus capacity
-            passengers_to_board = passengers_on_time[:(BUS_CAPACITY - current_passengers_on_board.__len__())]
+            passengers_to_board = passengers_on_time[:(locomotion_capacity - current_passengers_on_board.__len__())]
 
             # update the number of passengers on board
             current_passengers_on_board += passengers_to_board
