@@ -76,7 +76,7 @@ class GeneticAlgorithm:
         """
         individual: list[Prog] = []
 
-        while not self.is_valid_individual(individual) or individual.__len__() != self.num_slots:
+        while not self.is_valid_individual(individual):
             # Initialize an empty individual
             individual: list[Prog] = []
 
@@ -85,6 +85,7 @@ class GeneticAlgorithm:
                     # SERVICE_START * 60) + 1 : Served at least 1 second after the start of the service
                     # SERVICE_END * 60) - 1 : Served at least 1 second before the end of the service
                 start_time_seconds = int(rd.randint((SERVICE_START * 60) + 1, (SERVICE_END * 60) - 1)) 
+                start_time_seconds -= start_time_seconds % 60 # round to the nearest minute
                 start_time = convertTimeStamp(start_time_seconds)
 
                 # Generate a random direction
@@ -113,7 +114,7 @@ class GeneticAlgorithm:
         Returns:
             bool: True if the individual is valid, False otherwise
         """
-        return is_valid_plan(individual, self.num_locomotions) and individual.__len__() == self.num_slots
+        return is_valid_plan(individual, self.num_locomotions) and individual.__len__() <= self.num_slots and individual.__len__() > 0
     
     # Generate the initial population
     def generate_population(self) -> list[list[Prog]]:
@@ -200,8 +201,7 @@ class GeneticAlgorithm:
             mutated_individual = individual.copy()
 
             # Select a random mutation point
-            mutation_point = rd.randint(0, self.num_slots - 1)
-            prog_to_mutate = mutated_individual[mutation_point]
+            prog_to_mutate = rd.choice(mutated_individual)
             mutated_individual.remove(prog_to_mutate)
 
             # Get the start time of the prog to mutate

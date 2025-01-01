@@ -31,7 +31,6 @@ def generate_time_matrix(num_stops: int) -> list[int]:
     return traveling_times_array
 
 
-
 # Calculate the total waiting time for a given schedule
 def process_global_waiting_time(
         solution : list[Prog], 
