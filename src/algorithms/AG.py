@@ -11,16 +11,10 @@ Paramètres clés : taille de population, taux de croisement, taux de mutation
 Let's assume between midnigh and 6am, there is no bus
 """
 # libraries importation
-from src.models.plan import Prog, is_valid_plan
+from src.models.plan import Prog, is_valid_plan, generate_derivated_plan, generate_random_plan
 from src.models.demand import Demand
 import random as rd
-from src.utils.time import convertTimeStamp
 from src.models.stations import process_global_waiting_time
-from src.utils.constants import MAX_LOCOMOTION_SLOT_VARIATION
-
-# some constraints definitions (time in minutes)
-SERVICE_START = 6 * 60
-SERVICE_END = 24 * 60
 
 class GeneticAlgorithm:
     # Constructor
@@ -74,32 +68,10 @@ class GeneticAlgorithm:
         Returns:
             list[Prog]: a random individual with a proposed schedule
         """
-        individual: list[Prog] = []
+        individual = generate_random_plan(self.num_slots, sum(self.time_matrix))
 
         while not self.is_valid_individual(individual):
-            # Initialize an empty individual
-            individual: list[Prog] = []
-
-            for _ in range(self.num_slots):
-                # Generate a random time 
-                    # SERVICE_START * 60) + 1 : Served at least 1 second after the start of the service
-                    # SERVICE_END * 60) - 1 : Served at least 1 second before the end of the service
-                start_time_seconds = int(rd.randint((SERVICE_START * 60) + 1, (SERVICE_END * 60) - 1)) 
-                start_time_seconds -= start_time_seconds % 60 # round to the nearest minute
-                start_time = convertTimeStamp(start_time_seconds)
-
-                # Generate a random direction
-                direction = rd.choice([True, False])
-
-                # Create a new Prog instance
-                duration = sum(self.time_matrix)
-                prog = Prog(start_time, duration, direction)
-
-                # Add the new Prog to the individual
-                individual.append(prog)
-
-        # sort the individual by time
-        individual.sort(key=lambda prog: prog.time)
+            individual = generate_random_plan(self.num_slots, sum(self.time_matrix))
 
         return individual
     
@@ -114,7 +86,7 @@ class GeneticAlgorithm:
         Returns:
             bool: True if the individual is valid, False otherwise
         """
-        return is_valid_plan(individual, self.num_locomotions) and individual.__len__() <= self.num_slots and individual.__len__() > 0
+        return is_valid_plan(individual, self.num_locomotions) and individual.__len__() <= self.num_slots
     
     # Generate the initial population
     def generate_population(self) -> list[list[Prog]]:
@@ -198,33 +170,7 @@ class GeneticAlgorithm:
     # Perform the mutation operation
     def mutate(self, individual: list[Prog]) -> list[Prog]:
         if rd.random() < self.mutation_rate:
-            mutated_individual = individual.copy()
-
-            # Select a random mutation point
-            prog_to_mutate = rd.choice(mutated_individual)
-            mutated_individual.remove(prog_to_mutate)
-
-            # Get the start time of the prog to mutate
-            prog_to_mutate_start_time = prog_to_mutate.process_tour_start()
-
-            while not self.is_valid_individual(mutated_individual):
-                # Generate a random time variation
-                random_time_seconds = int(rd.randint(-MAX_LOCOMOTION_SLOT_VARIATION, MAX_LOCOMOTION_SLOT_VARIATION) * 60)
-                new_start_time_seconds = prog_to_mutate_start_time + random_time_seconds
-                # Make sure the departure time is within the service hours
-                new_start_time_seconds = max(new_start_time_seconds, SERVICE_START * 60)
-                new_start_time_seconds = min(new_start_time_seconds, SERVICE_END * 60)
-                new_start_time = convertTimeStamp(new_start_time_seconds)
-
-                # Try to add it to the mutated
-                new_prog = Prog(new_start_time, prog_to_mutate.duration, prog_to_mutate.direction)
-                if self.is_valid_individual(mutated_individual + [new_prog]):
-                    mutated_individual.append(new_prog)
-
-            # sort the mutated individual by time
-            mutated_individual.sort(key=lambda prog: prog.time)
-
-            return mutated_individual
+            return generate_derivated_plan(individual)
         
         return individual
 
