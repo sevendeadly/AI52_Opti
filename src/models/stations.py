@@ -47,15 +47,12 @@ def process_global_waiting_time(solution : list[Prog], passengers_demand: list[D
     current_passengers_demand: list[Demand] = passengers_demand
     current_passengers_on_board: list[Demand] = []
 
-    print(time_matrix)
-    print(passengers_demand)
-
     for slot in solution:
         print(slot)
         for step in range(time_matrix.__len__() + 1):
             bus_arrival_time = slot.process_tour_start() + sum(time_matrix[0: step])
             current_stop = step + 1
-            print(f"Stop: {current_stop } - Time: {convertTimeStamp(int(bus_arrival_time))}")
+            print(f"Stop: {current_stop} - Time: {convertTimeStamp(int(bus_arrival_time))}")
             passengers_on_time = [
                 demand for demand in current_passengers_demand if 
                 (
@@ -74,16 +71,12 @@ def process_global_waiting_time(solution : list[Prog], passengers_demand: list[D
                 passenger for passenger in current_passengers_on_board if passenger.stops > 0
             ]
 
-            print(current_passengers_on_board)
-
             # take only the passengers that can board the bus in the limit of the bus capacity
             passengers_to_board = passengers_on_time[:(BUS_CAPACITY - current_passengers_on_board.__len__())]
 
             # update the number of passengers on board
             current_passengers_on_board += passengers_to_board
 
-            print(passengers_on_time)
-            print(passengers_to_board)
             for passenger in passengers_to_board:
                 # calculate the waiting time for the passenger
                 waiting_time = min(bus_arrival_time - passenger.waiting_arrival, SERVICE_END * 60 - passenger.waiting_arrival)
@@ -98,6 +91,6 @@ def process_global_waiting_time(solution : list[Prog], passengers_demand: list[D
         waiting_time = SERVICE_END * 60 - passenger.waiting_arrival
         total_waiting_time += waiting_time
 
-    print(current_passengers_demand.__len__())
+    print("No served passengers : ", current_passengers_demand.__len__())
 
     return total_waiting_time

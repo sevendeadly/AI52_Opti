@@ -135,7 +135,7 @@ def process_required_locomotions(plan: list[Prog]) -> list[Locomotion]:
     return required_locomotions
 
 # Check if a plan is valid according to locomotion fleet
-def isValidPlan(plan: list[Prog], max_num_locomotions: int) -> bool:
+def is_valid_plan(plan: list[Prog], max_num_locomotions: int) -> bool:
     """
     Check if a plan is valid.
 

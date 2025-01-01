@@ -16,5 +16,8 @@ def convertTimeStamp(timeStamp: int) -> time:
     Returns:
         time: time object
     """
-    hours, minutes, seconds = timeStamp // 3600, (timeStamp % 3600) // 60, timeStamp % 60
+    # Constraint the timestamp to consider time after midnight as the next day
+    actual_timeStamp = timeStamp % (24 * 3600)
+
+    hours, minutes, seconds = actual_timeStamp // 3600, (actual_timeStamp % 3600) // 60, actual_timeStamp % 60
     return time(hours, minutes, seconds)
