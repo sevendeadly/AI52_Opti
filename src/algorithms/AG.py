@@ -143,7 +143,7 @@ class GeneticAlgorithm:
         Returns:
             int: the fitness score of the individual
         """
-        return process_global_waiting_time(individual, self.passengers_demand, self.time_matrix, self.locomotion_capacity)
+        return process_global_waiting_time(individual, self.passengers_demand*1, self.time_matrix, self.locomotion_capacity)
 
     # Select the parents of the next generation according to their fitness (elite selection)
     def select_parents(self) -> list[list[Prog]]:

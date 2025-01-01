@@ -51,7 +51,7 @@ def process_global_waiting_time(
         int: total waiting time
     """
     total_waiting_time: int = 0
-    current_passengers_demand: list[Demand] = passengers_demand
+    current_passengers_demand: list[Demand] = passengers_demand.copy()
     current_passengers_on_board: list[Demand] = []
 
     for slot in solution:
