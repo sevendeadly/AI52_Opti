@@ -11,10 +11,11 @@ Paramètres clés : taille de population, taux de croisement, taux de mutation
 Let's assume between midnigh and 6am, there is no bus
 """
 # libraries importation
-from src.models.plan import Prog, is_valid_plan, generate_derivated_plan, generate_random_plan
+from src.models.plan import Prog, is_valid_plan, generate_derivated_plan, generate_random_plan, generate_plan_on_peak
 from src.models.demand import Demand
 import random as rd
 from src.models.stations import process_global_waiting_time
+from src.utils.time import DAYTIME
 
 class GeneticAlgorithm:
     # Constructor
@@ -28,7 +29,8 @@ class GeneticAlgorithm:
             num_locomotions: int,
             locomotion_capacity: int,
             time_matrix: list[int],
-            passengers_demand: list[Demand]
+            passengers_demand: list[Demand],
+            peak_repartition: list[(DAYTIME, float)]
         ):
         """
         Initialize the Genetic Algorithm with the given parameters
@@ -44,6 +46,7 @@ class GeneticAlgorithm:
             locomotion_capacity (int): Capacity of each locomotion
             time_matrix (list[int]): List of time intervals between each stop
             passengers_demand (list[Demand]): List of passengers demand
+            peak_repartition (list[(DAYTIME, float)]): peak constraints with daytime intervals and associated probabilities
 
         Returns:
             None
@@ -58,7 +61,9 @@ class GeneticAlgorithm:
         self.locomotion_capacity = locomotion_capacity
         self.time_matrix = time_matrix
         self.passengers_demand = passengers_demand
+        self.peak_repartition = peak_repartition
         self.initial_population = self.generate_population()
+        
 
     # Generate a random individual
     def generate_individual(self) -> list[Prog]:
@@ -68,10 +73,10 @@ class GeneticAlgorithm:
         Returns:
             list[Prog]: a random individual with a proposed schedule
         """
-        individual = generate_random_plan(self.num_slots, sum(self.time_matrix))
+        individual = generate_plan_on_peak(self.num_slots, sum(self.time_matrix), self.peak_repartition)
 
         while not self.is_valid_individual(individual):
-            individual = generate_random_plan(self.num_slots, sum(self.time_matrix))
+            individual = generate_plan_on_peak(self.num_slots, sum(self.time_matrix), self.peak_repartition)
 
         return individual
     
@@ -199,6 +204,7 @@ class GeneticAlgorithm:
         new_population = elite_parents + mutated_children
         new_population.sort(key=lambda individual: self.evaluate_individual(individual))
 
+        print("Best individual : ", self.evaluate_individual(new_population[0]))
         return new_population[:self.population_size]
 
     # Optimize the transportation plan

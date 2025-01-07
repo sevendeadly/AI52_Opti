@@ -11,9 +11,10 @@ import math
 import random as rd
 import numpy as np
 from src.models.plan import Prog
-from src.models.plan import generate_derivated_plan, generate_random_plan
+from src.models.plan import generate_derivated_plan, generate_random_plan, generate_plan_on_peak
 from src.models.demand import Demand
 from src.models.stations import process_global_waiting_time
+from src.utils.time import DAYTIME
 
 class SimulatedAnnealing:
     def __init__(
@@ -25,6 +26,7 @@ class SimulatedAnnealing:
             num_progs: int,
             time_matrix: list[int],
             passengers_demand: list[Demand],
+            peak_repartition: list[(DAYTIME, float)],
             num_locomotions: int,
             locomotion_capacity: int
         ):
@@ -39,6 +41,7 @@ class SimulatedAnnealing:
             num_progs (int): number of programs
             time_matrix (list[int]): list of time intervals between each stop
             passengers_demand (list[Demand]): list of passengers demand
+            peak_repartition (list[(DAYTIME, float)]): peak constraints with daytime intervals and associated probabilities
             num_locomotions (int): number of locomotions in the schedule
             locomotion_capacity (int): capacity of each locomotion
         
@@ -52,6 +55,7 @@ class SimulatedAnnealing:
         self.num_progs = num_progs
         self.time_matrix = time_matrix
         self.passengers_demand = passengers_demand
+        self.peak_repartition = peak_repartition
         self.num_locomotions = num_locomotions
         self.locomotion_capacity = locomotion_capacity
         
@@ -108,7 +112,8 @@ class SimulatedAnnealing:
             list[Prog]: optimized solution
         """
         # Initialize the current solution
-        current_solution = generate_random_plan(self.num_progs, sum(self.time_matrix))
+        # current_solution = generate_random_plan(self.num_progs, sum(self.time_matrix))
+        current_solution = generate_plan_on_peak(self.num_progs, sum(self.time_matrix), self.peak_repartition)
         current_cost = self.process_solution_fitness(current_solution)
 
         # Initialize the best solution
@@ -142,5 +147,6 @@ class SimulatedAnnealing:
 
             # Cool down the temperature
             temperature *= 1 - self.cooling_rate
+            print("Best solution : ", self.process_solution_fitness(best_solution))
 
         return best_solution

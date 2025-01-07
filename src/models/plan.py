@@ -5,8 +5,8 @@ Gilles NGASSAM & Daniel KOANGA
 
 # Librairies importation
 from datetime import time
-from src.utils.time import convertTimeStamp
-from src.utils.constants import NUM_LOCOMOTIONS, SERVICE_START, SERVICE_END, MAX_LOCOMOTION_SLOT_VARIATION
+from src.utils.time import convertTimeStamp, DAYTIME
+from src.utils.constants import NUM_LOCOMOTIONS, SERVICE_START, SERVICE_END, MAX_LOCOMOTION_SLOT_VARIATION, PEAK_TIME_INTERVALS
 import random as rd
 
 class Prog:
@@ -174,6 +174,51 @@ def generate_random_plan(num_progs: int, duration: int) -> list[Prog]:
                 # SERVICE_START * 60) + 1 : Served at least 1 second after the start of the service
                 # SERVICE_END * 60) - 1 : Served at least 1 second before the end of the service
             start_time_seconds = int(rd.randint((SERVICE_START * 60) + 1, (SERVICE_END * 60) - 1)) 
+            start_time_seconds -= start_time_seconds % 60 # round to the nearest minute
+            start_time = convertTimeStamp(start_time_seconds)
+
+            # Generate a random direction
+            direction = rd.choice([True, False])
+
+            # Create a new Prog instance
+            prog = Prog(start_time, duration, direction)
+
+            # Add the new Prog to the plan
+            plan.append(prog)
+
+    plan.sort(key=lambda prog: prog.time)
+
+    return plan
+
+# Generate plan according to peak repartition
+def generate_plan_on_peak(num_progs: int, duration: int, peak_repartition: list[(DAYTIME, float)]) -> list[Prog]:
+    """
+    Generate plan according to peak repartition
+
+    Args:
+        num_progs (int): number of progs to generate
+        duration (int): duration of each tour
+        peak_repartition (list[(DAYTIME, float)]): peak constraints with daytime intervals and associated probabilities
+
+    Returns:
+        list[Prog]: the generated plan
+    """
+    plan: list[Prog] = []
+
+    # Generate the peak constraints for the whole demand sample
+    peak_times = [peak[0] for peak in peak_repartition]
+    peak_probabilities = [peak[1] for peak in peak_repartition]
+    peak_indicators = rd.choices(peak_times,peak_probabilities , k=num_progs)
+
+    while not is_valid_plan(plan, NUM_LOCOMOTIONS):
+        # Initialize an empty plan
+        plan = []
+
+        for index in range(num_progs):
+            # Implement an asset who make arrival time meets the peak constraints (morning, day, evening and night)
+            prog_interval = PEAK_TIME_INTERVALS[peak_indicators[index].value]
+            # Generate a random time between that interval
+            start_time_seconds = int(rd.randint(prog_interval[0] * 60, prog_interval[1] * 60)) 
             start_time_seconds -= start_time_seconds % 60 # round to the nearest minute
             start_time = convertTimeStamp(start_time_seconds)
 
