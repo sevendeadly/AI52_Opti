@@ -101,7 +101,8 @@ class SimulatedAnnealing:
         Returns:
             int: fitness of the solution
         """
-        return process_global_waiting_time(solution, self.passengers_demand*1, self.time_matrix, self.locomotion_capacity) / (60*60)
+        global_waiting_time = process_global_waiting_time(solution, self.passengers_demand*1, self.time_matrix, self.locomotion_capacity)
+        return global_waiting_time / (self.passengers_demand.__len__()*60*60)
     
     # Run the Simulated Annealing algorithm
     def optimize(self) -> list[Prog]:

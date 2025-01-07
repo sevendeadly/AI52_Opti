@@ -102,4 +102,4 @@ def process_global_waiting_time(
         total_waiting_time += waiting_time
 
 
-    return total_waiting_time / passengers_demand.__len__()
+    return total_waiting_time
