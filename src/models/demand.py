@@ -7,8 +7,9 @@ Gilles NGASSAM & Daniel KOANGA
 import random as rd
 from datetime import time
 from collections import Counter
-from src.utils.constants import PEAK_TIME_INTERVALS, DIRECTION_REPARTITION
-from src.utils.time import DAYTIME
+from src.utils.constants import PEAK_TIME_INTERVALS, DIRECTION_REPARTITION, DEMAND_INSTANCE_HEADERS
+from src.utils.time import DAYTIME, convertTimeStamp
+import csv
 
 
 # Generate a random demand sample to evaluate the fitness of a solution
@@ -80,5 +81,54 @@ def generate_demand_sample(num_stops: int, num_demands: int, peak_repartition: l
         waiting_arrival = rd.randint(demand_interval[0] * 60, demand_interval[1] * 60)  # start and end of the selected peak interval
         
         demand_sample.append(Demand(boarding_stop, waiting_arrival, stops, direction))
+    
+    # Sort the demand according to arrival and direction
+    demand_sample.sort(key=lambda demand: (demand.direction, demand.waiting_arrival))
 
     return demand_sample
+
+# Save a passengers demand as a csv file
+def save_demand_as_instance(passengers_demand: list[Demand], file_name: str) -> None:
+    file_location = f'data/instances/{file_name}.csv'
+    with open(file_location, 'w', newline='', encoding='utf-8') as csv_file:
+
+        # Create a writer object and set headers
+        writer = csv.writer(csv_file)
+        writer.writerow(['Arrival time', 'Boarding stop', 'Stops to go', 'Direction'])
+
+        # Save passengers data
+        for passenger in passengers_demand:
+            direction = "GARE TGV" if passenger.direction else "VALDOIE "
+            waiting_arrival_time = convertTimeStamp(passenger.waiting_arrival)
+            writer.writerow([waiting_arrival_time, passenger.boarding_stop, passenger.stops, direction])
+
+
+# Load passengers demand from csv
+def load_demand_from_instance(file_name: str) -> list[Demand]:
+    passengers_demands: list[Demand] = []
+    file_location = f'data/instances/{file_name}.csv'
+
+    with open(file_location, 'r', encoding='utf-8') as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+
+        # Skip the first line (header)
+        next(csv_reader)
+
+        # Regenerate demand from each line
+        for row in csv_reader:
+            boarding_stop = int(row[DEMAND_INSTANCE_HEADERS[1]])
+            stops = int(row[DEMAND_INSTANCE_HEADERS[2]])
+
+            arrival_time_string = row[DEMAND_INSTANCE_HEADERS[0]]
+            hours, minutes, seconds = map(lambda x: int(x.strip()), arrival_time_string.split(':'))
+            arrival_time_seconds = (hours * 3600) + (minutes * 60) + seconds
+
+            direction = row[DEMAND_INSTANCE_HEADERS[3]] == "GARE TGV"
+            demand = Demand( boarding_stop, arrival_time_seconds , stops, direction)
+
+            passengers_demands.append(demand)
+    
+    # Sort the demand according to arrival and direction
+    passengers_demands.sort(key=lambda demand: (demand.direction, demand.waiting_arrival))
+
+    return passengers_demands
