@@ -6,16 +6,10 @@ Gilles NGASSAM & Daniel KOANGA
 # Librairies importation
 import random as rd
 from datetime import time
-from enum import Enum
 from collections import Counter
 from src.utils.constants import PEAK_TIME_INTERVALS
+from src.utils.time import DAYTIME
 
-# Define the daytime intervals
-class DAYTIME(Enum):
-    MORNING = 0
-    DAY = 1
-    EVENING = 2
-    NIGHT = 3
 
 # Generate a random demand sample to evaluate the fitness of a solution
 class Demand:

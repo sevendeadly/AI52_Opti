@@ -4,6 +4,14 @@ Gilles NGASSAM & Daniel KOANGA
 """
 # Librairies importation
 from datetime import time
+from enum import Enum
+
+# Define the daytime intervals
+class DAYTIME(Enum):
+    MORNING = 0
+    DAY = 1
+    EVENING = 2
+    NIGHT = 3
 
 # Convert a timestamp in seconds to a time object
 def convertTimeStamp(timeStamp: int) -> time:
