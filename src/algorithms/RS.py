@@ -89,7 +89,7 @@ class SimulatedAnnealing:
         """
         if new_cost < current_cost:
             return 1.0
-        return np.exp((current_cost - new_cost) / temperature)
+        return math.exp((current_cost - new_cost) / temperature)
     
     def process_solution_fitness(self, solution: list[Prog]) -> int:
         """
@@ -102,7 +102,7 @@ class SimulatedAnnealing:
             int: fitness of the solution
         """
         global_waiting_time = process_global_waiting_time(solution, self.passengers_demand*1, self.time_matrix, self.locomotion_capacity)
-        return global_waiting_time / (self.passengers_demand.__len__()*60*60)
+        return round(global_waiting_time / (self.passengers_demand.__len__()*60*60), 2)
     
     # Run the Simulated Annealing algorithm
     def optimize(self) -> list[Prog]:

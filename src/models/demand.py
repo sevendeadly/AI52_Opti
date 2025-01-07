@@ -7,7 +7,7 @@ Gilles NGASSAM & Daniel KOANGA
 import random as rd
 from datetime import time
 from collections import Counter
-from src.utils.constants import PEAK_TIME_INTERVALS
+from src.utils.constants import PEAK_TIME_INTERVALS, DIRECTION_REPARTITION
 from src.utils.time import DAYTIME
 
 
@@ -52,16 +52,20 @@ def generate_demand_sample(num_stops: int, num_demands: int, peak_repartition: l
     """
     demand_sample: list[Demand] = []
 
-    # Generate the peak constraints for the whole demand sample
+    # Generate the peak constraints for the whole demand sample according to time
     peak_times = [peak[0] for peak in peak_repartition]
     peak_probabilities = [peak[1] for peak in peak_repartition]
     peak_indicators = rd.choices(peak_times,peak_probabilities , k=num_demands)
 
+    # Generate the peak constraints according to direction
+    directions = rd.choices([True, False], DIRECTION_REPARTITION, k=num_demands)
+
     print(Counter(peak_indicators))
+    print(Counter(directions))
 
     # Process the demand generation
     for index in range(num_demands):
-        direction = rd.choice([True, False])
+        direction = directions[index]
 
         if direction:
             boarding_stop = rd.randint(1, num_stops - 1)

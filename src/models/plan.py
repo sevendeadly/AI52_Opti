@@ -6,7 +6,7 @@ Gilles NGASSAM & Daniel KOANGA
 # Librairies importation
 from datetime import time
 from src.utils.time import convertTimeStamp, DAYTIME
-from src.utils.constants import NUM_LOCOMOTIONS, SERVICE_START, SERVICE_END, MAX_LOCOMOTION_SLOT_VARIATION, PEAK_TIME_INTERVALS
+from src.utils.constants import NUM_LOCOMOTIONS, SERVICE_START, SERVICE_END, MAX_LOCOMOTION_SLOT_VARIATION, PEAK_TIME_INTERVALS, DIRECTION_REPARTITION
 import random as rd
 
 class Prog:
@@ -177,7 +177,7 @@ def generate_random_plan(num_progs: int, duration: int) -> list[Prog]:
             start_time_seconds -= start_time_seconds % 60 # round to the nearest minute
             start_time = convertTimeStamp(start_time_seconds)
 
-            # Generate a random direction
+            # Get the direction defined
             direction = rd.choice([True, False])
 
             # Create a new Prog instance
@@ -210,6 +210,9 @@ def generate_plan_on_peak(num_progs: int, duration: int, peak_repartition: list[
     peak_probabilities = [peak[1] for peak in peak_repartition]
     peak_indicators = rd.choices(peak_times,peak_probabilities , k=num_progs)
 
+    # Generate the peak constraints according to direction
+    directions = rd.choices([True, False], DIRECTION_REPARTITION, k=num_progs)
+
     while not is_valid_plan(plan, NUM_LOCOMOTIONS):
         # Initialize an empty plan
         plan = []
@@ -223,7 +226,7 @@ def generate_plan_on_peak(num_progs: int, duration: int, peak_repartition: list[
             start_time = convertTimeStamp(start_time_seconds)
 
             # Generate a random direction
-            direction = rd.choice([True, False])
+            direction = directions[index]
 
             # Create a new Prog instance
             prog = Prog(start_time, duration, direction)
