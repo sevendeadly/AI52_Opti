@@ -11,3 +11,6 @@ DIRECTION_REPARTITION = (50, 50)
 PEAK_TIME_INTERVALS = [(SERVICE_START, 10 * 60), (10 * 60, 16 * 60), (16 * 60, 20 * 60), (20 * 60, SERVICE_END)]
 MAX_LOCOMOTION_SLOT_VARIATION = 10
 DEMAND_INSTANCE_HEADERS = ['Arrival time', 'Boarding stop', 'Stops to go', 'Direction']
+PLAN_INSTANCE_HEADERS = ['Direction', 'Departure Time', 'Duration (minutes)']
+UP_TERMINUS = "Gare TGV"
+DOWN_TERMINUS = "VALDOIE "

@@ -6,8 +6,9 @@ Gilles NGASSAM & Daniel KOANGA
 # Librairies importation
 from datetime import time
 from src.utils.time import convertTimeStamp, DAYTIME
-from src.utils.constants import NUM_LOCOMOTIONS, SERVICE_START, SERVICE_END, MAX_LOCOMOTION_SLOT_VARIATION, PEAK_TIME_INTERVALS, DIRECTION_REPARTITION
+from src.utils.constants import NUM_LOCOMOTIONS, SERVICE_START, SERVICE_END, MAX_LOCOMOTION_SLOT_VARIATION, PEAK_TIME_INTERVALS, DIRECTION_REPARTITION, PLAN_INSTANCE_HEADERS, UP_TERMINUS, DOWN_TERMINUS
 import random as rd
+import csv
 
 class Prog:
     def __init__(self, time: time, duration: int, direction: bool):
@@ -267,3 +268,19 @@ def generate_derivated_plan(plan: list[Prog]) -> list[Prog]:
     neighbor_plan.sort(key=lambda prog: prog.time)
 
     return neighbor_plan
+
+# Save a generated plan in a csv format
+def save_plan_csv(plan: list[Prog], file_name: str) -> None:
+    file_location = f'data/output/{file_name}.csv'
+
+    with open(file_location, 'w', newline='', encoding='utf-8') as csv_file:
+
+        # Create a writer object and set headers
+        writer = csv.writer(csv_file)
+        writer.writerow(PLAN_INSTANCE_HEADERS)
+
+        # Save passengers data
+        for prog in plan:
+            direction = UP_TERMINUS if prog.direction else DOWN_TERMINUS
+            tour_duration_minutes = prog.duration / 60
+            writer.writerow([direction, prog.time, tour_duration_minutes])
