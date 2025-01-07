@@ -4,6 +4,7 @@ Gilles NGASSAM & Daniel KOANGA
 """
 
 # Librairies importation
+import copy
 import random as rd
 import numpy as np
 from datetime import time
@@ -51,23 +52,15 @@ def process_global_waiting_time(
         int: total waiting time
     """
     total_waiting_time: int = 0
-    current_passengers_demand: list[Demand] = passengers_demand.copy()
-    current_passengers_on_board: list[Demand] = []
+    current_passengers_demand: list[Demand] = copy.deepcopy(passengers_demand)
+    
 
     for slot in solution:
+        current_passengers_on_board: list[Demand] = []
         # print(slot)
         for step in range(time_matrix.__len__() + 1):
             bus_arrival_time = slot.process_tour_start() + sum(time_matrix[0: step])
             current_stop = step + 1
-            # print(f"Stop: {current_stop} - Time: {convertTimeStamp(int(bus_arrival_time))}")
-            passengers_on_time = [
-                demand for demand in current_passengers_demand if 
-                (
-                    demand.boarding_stop == current_stop and
-                    demand.direction == slot.direction and
-                    demand.waiting_arrival < bus_arrival_time
-                )
-            ]
 
             # At each stop, decrease the number of stops for the passengers on board
             for passenger in current_passengers_on_board:
@@ -76,6 +69,16 @@ def process_global_waiting_time(
             # passengers who have reached their destination get off the bus
             current_passengers_on_board = [
                 passenger for passenger in current_passengers_on_board if passenger.stops > 0
+            ]
+            
+            # print(f"Stop: {current_stop} - Time: {convertTimeStamp(int(bus_arrival_time))}")
+            passengers_on_time = [
+                demand for demand in current_passengers_demand if 
+                (
+                    demand.boarding_stop == current_stop and
+                    demand.direction == slot.direction and
+                    demand.waiting_arrival <= bus_arrival_time
+                )
             ]
 
             # take only the passengers that can board the bus in the limit of the bus capacity
@@ -86,7 +89,7 @@ def process_global_waiting_time(
 
             for passenger in passengers_to_board:
                 # calculate the waiting time for the passenger
-                waiting_time = min(bus_arrival_time - passenger.waiting_arrival, SERVICE_END * 60 - passenger.waiting_arrival)
+                waiting_time = bus_arrival_time - passenger.waiting_arrival
                 # add it to the global time
                 total_waiting_time += waiting_time
 
@@ -98,6 +101,5 @@ def process_global_waiting_time(
         waiting_time = SERVICE_END * 60 - passenger.waiting_arrival
         total_waiting_time += waiting_time
 
-    # print("No served passengers : ", current_passengers_demand.__len__())
 
-    return total_waiting_time
+    return total_waiting_time / passengers_demand.__len__()

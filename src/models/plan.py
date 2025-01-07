@@ -206,8 +206,8 @@ def generate_derivated_plan(plan: list[Prog]) -> list[Prog]:
         random_time_seconds = int(rd.randint(-MAX_LOCOMOTION_SLOT_VARIATION, MAX_LOCOMOTION_SLOT_VARIATION) * 60)
         new_start_time_seconds = prog_to_mutate_start_time + random_time_seconds
         # Make sure the departure time is within the service hours
-        new_start_time_seconds = max(new_start_time_seconds, SERVICE_START * 60)
-        new_start_time_seconds = min(new_start_time_seconds, SERVICE_END * 60)
+        new_start_time_seconds = min(new_start_time_seconds, SERVICE_START * 60)
+        new_start_time_seconds = max(new_start_time_seconds, SERVICE_END * 60)
         new_start_time = convertTimeStamp(new_start_time_seconds)
 
         # Try to add it to the mutated

@@ -7,6 +7,7 @@ Paramètres clés : température initiale, taux de refroidissement, itérations 
 # Librairies importation
 import math
 import random as rd
+import numpy as np
 from src.models.plan import Prog
 from src.models.plan import generate_derivated_plan, generate_random_plan
 from src.models.demand import Demand
@@ -82,7 +83,7 @@ class SimulatedAnnealing:
         """
         if new_cost < current_cost:
             return 1.0
-        return math.exp((current_cost - new_cost) / temperature)
+        return np.exp((current_cost - new_cost) / temperature)
     
     def process_solution_fitness(self, solution: list[Prog]) -> int:
         """
@@ -94,7 +95,7 @@ class SimulatedAnnealing:
         Returns:
             int: fitness of the solution
         """
-        return process_global_waiting_time(solution, self.passengers_demand*1, self.time_matrix, self.locomotion_capacity)
+        return process_global_waiting_time(solution, self.passengers_demand*1, self.time_matrix, self.locomotion_capacity) / (60*60)
     
     # Run the Simulated Annealing algorithm
     def optimize(self) -> list[Prog]:
@@ -130,11 +131,10 @@ class SimulatedAnnealing:
                 if probability > rd.random():
                     current_solution = new_solution
                     current_cost = new_cost
-                    print("New local best solution found : ", current_cost)
 
                 # Update the best solution
                 if current_cost < best_cost:
-                    print("New global best solution found : ", current_cost)
+                    print("Global best solution : ", current_cost)
                     best_solution = current_solution
                     best_cost = current_cost
 
