@@ -1,3 +1,7 @@
+#Author : Josue-Daniel
+
+
+
 """
 Implémente la Recherche Tabou pour l'optimisation des horaires de bus.
 Maintient une liste taboue des mouvements récents et critères d'aspiration.
