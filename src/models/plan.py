@@ -26,7 +26,7 @@ class Prog:
     
     # Set up a representation of an solution instance
     def __repr__(self):
-        return f"Bus - Time: {self.time} - Direction : {"GARE TGV" if self.direction else "VALDOIE "}"
+        return f"Bus - Time: {self.time} - Direction : {UP_TERMINUS if self.direction else DOWN_TERMINUS}"
     
 
 

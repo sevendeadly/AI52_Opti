@@ -7,7 +7,7 @@ Gilles NGASSAM & Daniel KOANGA
 import random as rd
 from datetime import time
 from collections import Counter
-from src.utils.constants import PEAK_TIME_INTERVALS, DIRECTION_REPARTITION, DEMAND_INSTANCE_HEADERS
+from src.utils.constants import PEAK_TIME_INTERVALS, DIRECTION_REPARTITION, DEMAND_INSTANCE_HEADERS, UP_TERMINUS, DOWN_TERMINUS
 from src.utils.time import DAYTIME, convertTimeStamp
 import csv
 
@@ -35,7 +35,7 @@ class Demand:
     def __repr__(self):
         hours, minutes, seconds = self.waiting_arrival // 3600, (self.waiting_arrival % 3600) // 60, self.waiting_arrival % 60
 
-        return f"\n{"GARE TGV" if self.direction else "VALDOIE "} - boarding stop: {self.boarding_stop} arrival_time: {time(hours, minutes, seconds)} stops: {self.stops}"
+        return f"\n{UP_TERMINUS if self.direction else DOWN_TERMINUS} - boarding stop: {self.boarding_stop} arrival_time: {time(hours, minutes, seconds)} stops: {self.stops}"
 
 
 # Generate a random demand sample to evaluate the fitness of a solution
@@ -98,7 +98,7 @@ def save_demand_as_instance(passengers_demand: list[Demand], file_name: str) -> 
 
         # Save passengers data
         for passenger in passengers_demand:
-            direction = "GARE TGV" if passenger.direction else "VALDOIE "
+            direction = UP_TERMINUS if passenger.direction else DOWN_TERMINUS
             waiting_arrival_time = convertTimeStamp(passenger.waiting_arrival)
             writer.writerow([waiting_arrival_time, passenger.boarding_stop, passenger.stops, direction])
 
@@ -123,7 +123,7 @@ def load_demand_from_instance(file_name: str) -> list[Demand]:
             hours, minutes, seconds = map(lambda x: int(x.strip()), arrival_time_string.split(':'))
             arrival_time_seconds = (hours * 3600) + (minutes * 60) + seconds
 
-            direction = row[DEMAND_INSTANCE_HEADERS[3]] == "GARE TGV"
+            direction = row[DEMAND_INSTANCE_HEADERS[3]] == UP_TERMINUS
             demand = Demand( boarding_stop, arrival_time_seconds , stops, direction)
 
             passengers_demands.append(demand)
