@@ -165,6 +165,8 @@ class GeneticAlgorithm:
                 child1 = parent1[:first_crossover_point] + parent2[first_crossover_point:second_crossover_point] + parent1[second_crossover_point:]
                 child2 = parent2[:first_crossover_point] + parent1[first_crossover_point:second_crossover_point] + parent2[second_crossover_point:]
 
+                child1.sort(key=lambda prog: prog.time)
+                child2.sort(key=lambda prog: prog.time)
                 if self.is_valid_individual(child1):
                     children.append(child1)
 
