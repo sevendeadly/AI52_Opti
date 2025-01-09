@@ -15,6 +15,7 @@ from src.models.plan import generate_derivated_plan, generate_random_plan, gener
 from src.models.demand import Demand
 from src.models.stations import process_global_waiting_time
 from src.utils.time import DAYTIME
+from copy import deepcopy
 
 class SimulatedAnnealing:
     def __init__(
@@ -72,7 +73,12 @@ class SimulatedAnnealing:
         Returns:
             list[Prog]: neighbor solution
         """
-        return generate_derivated_plan(current_solution.copy())
+        mutation_point = rd.randint(0, current_solution.__len__() - 1)
+        minutes_rotation = rd.randint(-2,2)
+        direction = rd.choice([True, False])
+        changer = (mutation_point, minutes_rotation, direction)
+
+        return generate_derivated_plan(deepcopy(current_solution), changer)
     
     # Calculate the acceptance probability of a new solution
     def acceptance_probability(self, current_cost: int, new_cost: int, temperature: float) -> float:
@@ -102,7 +108,7 @@ class SimulatedAnnealing:
             int: fitness of the solution
         """
         global_waiting_time = process_global_waiting_time(solution, self.passengers_demand*1, self.time_matrix, self.locomotion_capacity)
-        return round(global_waiting_time / (self.passengers_demand.__len__()*60*60), 2)
+        return round(global_waiting_time / (self.passengers_demand.__len__()*60*60), 10)
     
     # Run the Simulated Annealing algorithm
     def optimize(self) -> list[Prog]:

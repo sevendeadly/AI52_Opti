@@ -121,7 +121,8 @@ class GeneticAlgorithm:
             int: the fitness score of the individual
         """
         global_waiting_time = process_global_waiting_time(individual, self.passengers_demand*1, self.time_matrix, self.locomotion_capacity)
-        return round(global_waiting_time / (60*60*self.passengers_demand.__len__()), 2)
+        
+        return round(global_waiting_time / (60*60*self.passengers_demand.__len__()), 10)
 
     # Select the parents of the next generation according to their fitness (elite selection)
     def select_parents(self) -> list[list[Prog]]:
@@ -157,11 +158,12 @@ class GeneticAlgorithm:
 
             while children.__len__() < 2:
                 # Select a random crossover point
-                crossover_point = rd.randint(1, self.num_slots - 1)
+                first_crossover_point = rd.randint(0, self.num_slots - 1)
+                second_crossover_point = rd.randint(first_crossover_point, self.num_slots - 1)
 
                 # Perform the crossover and check the validity of the children
-                child1 = parent1[:crossover_point] + parent2[crossover_point:]
-                child2 = parent2[:crossover_point] + parent1[crossover_point:]
+                child1 = parent1[:first_crossover_point] + parent2[first_crossover_point:second_crossover_point] + parent1[second_crossover_point:]
+                child2 = parent2[:first_crossover_point] + parent1[first_crossover_point:second_crossover_point] + parent2[second_crossover_point:]
 
                 if self.is_valid_individual(child1):
                     children.append(child1)
@@ -176,7 +178,12 @@ class GeneticAlgorithm:
     # Perform the mutation operation
     def mutate(self, individual: list[Prog]) -> list[Prog]:
         if rd.random() < self.mutation_rate:
-            return generate_derivated_plan(individual)
+            mutation_point = rd.randint(0, individual.__len__() - 1)
+            minutes_rotation = rd.randint(-2,2)
+            direction = rd.choice([True, False])
+            changer = (mutation_point, minutes_rotation, direction)
+
+            return generate_derivated_plan(individual, changer)
         
         return individual
 

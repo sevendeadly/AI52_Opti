@@ -8,6 +8,7 @@ from datetime import time
 from src.utils.time import convertTimeStamp, DAYTIME
 from src.utils.constants import NUM_LOCOMOTIONS, SERVICE_START, SERVICE_END, MAX_LOCOMOTION_SLOT_VARIATION, PEAK_TIME_INTERVALS, DIRECTION_REPARTITION, PLAN_INSTANCE_HEADERS, UP_TERMINUS, DOWN_TERMINUS
 import random as rd
+import copy
 import csv
 
 class Prog:
@@ -241,7 +242,7 @@ def generate_plan_on_peak(num_progs: int, duration: int, peak_repartition: list[
 
 # Generate a near plan derivated from a given one
 def generate_derivated_plan(plan: list[Prog]) -> list[Prog]:
-    neighbor_plan = plan.copy()
+    neighbor_plan = copy.deepcopy(plan)
 
     # Select a random modification point
     prog_to_modify = rd.choice(neighbor_plan)
@@ -250,17 +251,49 @@ def generate_derivated_plan(plan: list[Prog]) -> list[Prog]:
     # Get the start time of the prog to mutate
     prog_to_mutate_start_time = prog_to_modify.process_tour_start()
 
-    while not is_valid_plan(neighbor_plan, NUM_LOCOMOTIONS):
+    while not (is_valid_plan(neighbor_plan, NUM_LOCOMOTIONS) and plan.__len__() == neighbor_plan.__len__()):
         # Generate a random time variation
         random_time_seconds = int(rd.randint(-MAX_LOCOMOTION_SLOT_VARIATION, MAX_LOCOMOTION_SLOT_VARIATION) * 60)
         new_start_time_seconds = prog_to_mutate_start_time + random_time_seconds
         # Make sure the departure time is within the service hours
-        new_start_time_seconds = min(new_start_time_seconds, SERVICE_START * 60)
-        new_start_time_seconds = max(new_start_time_seconds, SERVICE_END * 60)
+        new_start_time_seconds = max(new_start_time_seconds, SERVICE_START * 60)
+        new_start_time_seconds = min(new_start_time_seconds, SERVICE_END * 60)
         new_start_time = convertTimeStamp(new_start_time_seconds)
 
         # Try to add it to the mutated
         new_prog = Prog(new_start_time, prog_to_modify.duration, prog_to_modify.direction)
+        if is_valid_plan(neighbor_plan + [new_prog], NUM_LOCOMOTIONS):
+            neighbor_plan.append(new_prog)
+
+    # sort the mutated individual by time
+    neighbor_plan.sort(key=lambda prog: prog.time)
+
+    return neighbor_plan
+
+# Generate a near plan derivated from a given one
+def generate_derivated_plan(plan: list[Prog], changer: tuple[int, int, bool]) -> list[Prog]:
+    neighbor_plan = copy.deepcopy(plan)
+
+    # Select a random modification point
+    prog_to_modify = neighbor_plan[changer[0]%plan.__len__()]
+    neighbor_plan.remove(prog_to_modify)
+
+    # Get the start time of the prog to mutate
+    prog_to_mutate_start_time = prog_to_modify.process_tour_start()
+
+    while not is_valid_plan(neighbor_plan, NUM_LOCOMOTIONS) or neighbor_plan.__len__() != plan.__len__():
+        # Generate a random time variation
+        random_time_seconds = int(changer[1] * 60)
+        new_start_time_seconds = prog_to_mutate_start_time + random_time_seconds
+        # Make sure the departure time is within the service hours
+        new_start_time_seconds = max(new_start_time_seconds, SERVICE_START * 60)
+        new_start_time_seconds = min(new_start_time_seconds, SERVICE_END * 60)
+        new_start_time = convertTimeStamp(new_start_time_seconds)
+        # Modify eventually the direction
+        direction = (not prog_to_modify.direction) if changer[2] else prog_to_modify.direction
+
+        # Try to add it to the mutated
+        new_prog = Prog(new_start_time, prog_to_modify.duration, direction)
         if is_valid_plan(neighbor_plan + [new_prog], NUM_LOCOMOTIONS):
             neighbor_plan.append(new_prog)
 
