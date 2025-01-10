@@ -9,12 +9,11 @@ Paramètres clés : température initiale, taux de refroidissement, itérations 
 # Librairies importation
 import math
 import random as rd
-import numpy as np
 from src.models.plan import Prog
-from src.models.plan import generate_derivated_plan, generate_random_plan, generate_plan_on_peak
+from src.models.plan import generate_derivated_plan, generate_plan_on_peak
 from src.models.demand import Demand
 from src.models.stations import process_global_waiting_time
-from src.utils.time import DAYTIME
+from src.utils.constants import LOCOMOTION_CAPACITY, NUM_LOCOMOTIONS, NUM_PROGS, PEAK_REPARTITION, MAX_LOCOMOTION_SLOT_VARIATION
 from copy import deepcopy
 
 class SimulatedAnnealing:
@@ -24,12 +23,8 @@ class SimulatedAnnealing:
             cooling_rate: float, 
             iterations_per_temperature: int, 
             temperature_threshold: float,
-            num_progs: int,
-            time_matrix: list[int],
             passengers_demand: list[Demand],
-            peak_repartition: list[(DAYTIME, float)],
-            num_locomotions: int,
-            locomotion_capacity: int
+            time_matrix: list[int],
         ):
         """
         Initialize the Simulated Annealing algorithm with the given parameters.
@@ -39,13 +34,9 @@ class SimulatedAnnealing:
             cooling_rate (float): cooling rate
             iterations_per_temperature (int): number of iterations per temperature
             temperature_threshold (float): temperature threshold
-            num_progs (int): number of programs
-            time_matrix (list[int]): list of time intervals between each stop
             passengers_demand (list[Demand]): list of passengers demand
-            peak_repartition (list[(DAYTIME, float)]): peak constraints with daytime intervals and associated probabilities
-            num_locomotions (int): number of locomotions in the schedule
-            locomotion_capacity (int): capacity of each locomotion
-        
+            time_matrix (list[int]): list of time intervals between each stop
+            
         Returns:
             None
         """
@@ -53,14 +44,9 @@ class SimulatedAnnealing:
         self.cooling_rate = cooling_rate
         self.iterations_per_temperature = iterations_per_temperature
         self.temperature_threshold = temperature_threshold
-        self.num_progs = num_progs
         self.time_matrix = time_matrix
         self.passengers_demand = passengers_demand
-        self.peak_repartition = peak_repartition
-        self.num_locomotions = num_locomotions
-        self.locomotion_capacity = locomotion_capacity
         
-
 
     # Generate a neighbor solution
     def generate_neighbor(self, current_solution: list[Prog]) -> list[Prog]:
@@ -74,7 +60,7 @@ class SimulatedAnnealing:
             list[Prog]: neighbor solution
         """
         mutation_point = rd.randint(0, current_solution.__len__() - 1)
-        minutes_rotation = rd.randint(-2,2)
+        minutes_rotation = rd.randint(-MAX_LOCOMOTION_SLOT_VARIATION,MAX_LOCOMOTION_SLOT_VARIATION)
         direction = rd.choice([True, False])
         changer = (mutation_point, minutes_rotation, direction)
 
@@ -107,8 +93,8 @@ class SimulatedAnnealing:
         Returns:
             int: fitness of the solution
         """
-        global_waiting_time = process_global_waiting_time(solution, self.passengers_demand*1, self.time_matrix, self.locomotion_capacity)
-        return round(global_waiting_time / (self.passengers_demand.__len__()*60*60), 10)
+        global_waiting_time = process_global_waiting_time(solution, self.passengers_demand*1, self.time_matrix, LOCOMOTION_CAPACITY)
+        return round(global_waiting_time / (self.passengers_demand.__len__()*60*60), 5)
     
     # Run the Simulated Annealing algorithm
     def optimize(self) -> list[Prog]:
@@ -120,7 +106,7 @@ class SimulatedAnnealing:
         """
         # Initialize the current solution
         # current_solution = generate_random_plan(self.num_progs, sum(self.time_matrix))
-        current_solution = generate_plan_on_peak(self.num_progs, sum(self.time_matrix), self.peak_repartition)
+        current_solution = generate_plan_on_peak(NUM_PROGS, sum(self.time_matrix), PEAK_REPARTITION)
         current_cost = self.process_solution_fitness(current_solution)
 
         # Initialize the best solution
@@ -148,7 +134,6 @@ class SimulatedAnnealing:
 
                 # Update the best solution
                 if current_cost < best_cost:
-                    print("Global best solution : ", current_cost)
                     best_solution = current_solution
                     best_cost = current_cost
 
