@@ -11,11 +11,12 @@ Paramètres clés : taille de population, taux de croisement, taux de mutation
 Let's assume between midnigh and 6am, there is no bus
 """
 # libraries importation
-from src.models.plan import Prog, is_valid_plan, generate_derivated_plan, generate_random_plan, generate_plan_on_peak
+from src.models.plan import Prog, is_valid_plan, generate_derivated_plan, generate_plan_on_peak
+from src.utils.constants import LOCOMOTION_CAPACITY, NUM_LOCOMOTIONS, PEAK_REPARTITION, NUM_PROGS
 from src.models.demand import Demand
 import random as rd
 from src.models.stations import process_global_waiting_time
-from src.utils.time import DAYTIME
+
 
 class GeneticAlgorithm:
     # Constructor
@@ -25,12 +26,8 @@ class GeneticAlgorithm:
             crossover_rate: float, 
             mutation_rate: float,
             selection_rate: float,
-            num_slots: int, 
-            num_locomotions: int,
-            locomotion_capacity: int,
-            time_matrix: list[int],
             passengers_demand: list[Demand],
-            peak_repartition: list[(DAYTIME, float)]
+            time_matrix: list[int],
         ):
         """
         Initialize the Genetic Algorithm with the given parameters
@@ -41,12 +38,8 @@ class GeneticAlgorithm:
             crossover_rate (float): Probability of crossover
             mutation_rate (float): Probability of mutation
             selection_rate (float): Probability of selection
-            num_slots (int): Number of time slots in the schedule
-            num_locomotions (int): Number of locomotions in the schedule
-            locomotion_capacity (int): Capacity of each locomotion
-            time_matrix (list[int]): List of time intervals between each stop
             passengers_demand (list[Demand]): List of passengers demand
-            peak_repartition (list[(DAYTIME, float)]): peak constraints with daytime intervals and associated probabilities
+            time_matrix (list[int]): List of time intervals between each stop
 
         Returns:
             None
@@ -56,13 +49,8 @@ class GeneticAlgorithm:
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
         self.selection_rate = selection_rate
-        self.num_slots = num_slots
-        self.num_locomotions = num_locomotions
-        self.locomotion_capacity = locomotion_capacity
         self.time_matrix = time_matrix
         self.passengers_demand = passengers_demand
-        self.peak_repartition = peak_repartition
-        self.initial_population = self.generate_population()
         
 
     # Generate a random individual
@@ -73,10 +61,10 @@ class GeneticAlgorithm:
         Returns:
             list[Prog]: a random individual with a proposed schedule
         """
-        individual = generate_plan_on_peak(self.num_slots, sum(self.time_matrix), self.peak_repartition)
+        individual = generate_plan_on_peak(NUM_PROGS, sum(self.time_matrix), PEAK_REPARTITION)
 
         while not self.is_valid_individual(individual):
-            individual = generate_plan_on_peak(self.num_slots, sum(self.time_matrix), self.peak_repartition)
+            individual = generate_plan_on_peak(NUM_PROGS, sum(self.time_matrix), PEAK_REPARTITION)
 
         return individual
     
@@ -91,7 +79,7 @@ class GeneticAlgorithm:
         Returns:
             bool: True if the individual is valid, False otherwise
         """
-        return is_valid_plan(individual, self.num_locomotions) and individual.__len__() <= self.num_slots
+        return is_valid_plan(individual, NUM_LOCOMOTIONS) and individual.__len__() <= NUM_PROGS
     
     # Generate the initial population
     def generate_population(self) -> list[list[Prog]]:
@@ -120,7 +108,7 @@ class GeneticAlgorithm:
         Returns:
             int: the fitness score of the individual
         """
-        global_waiting_time = process_global_waiting_time(individual, self.passengers_demand*1, self.time_matrix, self.locomotion_capacity)
+        global_waiting_time = process_global_waiting_time(individual, self.passengers_demand*1, self.time_matrix, LOCOMOTION_CAPACITY)
         
         return round(global_waiting_time / (60*60*self.passengers_demand.__len__()), 10)
 
@@ -157,16 +145,18 @@ class GeneticAlgorithm:
             children: list[list[Prog]] = []
 
             while children.__len__() < 2:
-                # Select a random crossover point
-                first_crossover_point = rd.randint(0, self.num_slots - 1)
-                second_crossover_point = rd.randint(first_crossover_point, self.num_slots - 1)
+                # Select three random crossover points
+                first_crossover_point = rd.randint(0, NUM_PROGS - 1)
+                second_crossover_point = rd.randint(first_crossover_point, NUM_PROGS - 1)
+                third_crossover_point = rd.randint(second_crossover_point, NUM_PROGS - 1)
 
                 # Perform the crossover and check the validity of the children
-                child1 = parent1[:first_crossover_point] + parent2[first_crossover_point:second_crossover_point] + parent1[second_crossover_point:]
-                child2 = parent2[:first_crossover_point] + parent1[first_crossover_point:second_crossover_point] + parent2[second_crossover_point:]
+                child1 = parent1[:first_crossover_point] + parent2[first_crossover_point:second_crossover_point] + parent1[second_crossover_point:third_crossover_point] + parent2[third_crossover_point:]
+                child2 = parent2[:first_crossover_point] + parent1[first_crossover_point:second_crossover_point] + parent2[second_crossover_point:third_crossover_point] + parent1[third_crossover_point:]
 
                 child1.sort(key=lambda prog: prog.time)
                 child2.sort(key=lambda prog: prog.time)
+                
                 if self.is_valid_individual(child1):
                     children.append(child1)
 
@@ -225,7 +215,7 @@ class GeneticAlgorithm:
         Returns:
             list[Prog]: the optimized transportation plan
         """
-        current_population = self.initial_population.copy()
+        current_population = self.generate_population()
 
         # run through all the generations
         for iteration in range(self.num_generations):
