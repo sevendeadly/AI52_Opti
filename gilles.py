@@ -9,6 +9,7 @@ from datetime import time
 import pandas as pd
 from src.algorithms.TS import TabuSearch
 from src.algorithms.ACO import AntColonyOptimization
+from src.algorithms.PSO import ParticleSwarmOptimization
 
 time_matrix = generate_time_matrix(4)
 
@@ -23,8 +24,9 @@ demands = load_demand_from_instance('instance_1')
 # ts = TabuSearch(8, 1000, 100, NUM_LOCOMOTIONS, LOCOMOTION_CAPACITY, time_matrix, demands, peak_repartition, 3600)
 # ga = GeneticAlgorithm(100, 10, 0.7, 0.1, 0.8, num_slots=100, num_locomotions=NUM_LOCOMOTIONS, locomotion_capacity=LOCOMOTION_CAPACITY, time_matrix=time_matrix, passengers_demand=demands*1, peak_repartition=peak_repartition)
 # sa = SimulatedAnnealing(10000, 0.05, 50, 1000, 100, time_matrix, demands*1, peak_repartition, NUM_LOCOMOTIONS, LOCOMOTION_CAPACITY)
-aco = AntColonyOptimization(5, 100, 2, 1, 0.1, demands*1, time_matrix)
-best_solution = aco.optimize()
+# aco = AntColonyOptimization(5, 100, 2, 1, 0.1, demands*1, time_matrix)
+pso = ParticleSwarmOptimization(100, 100, 0.5, 1, 1, demands*1, time_matrix)
+best_solution = pso.optimize()
 
 print("Best solution : ")
 best_solution.sort(key=lambda prog: prog.direction)
@@ -32,6 +34,6 @@ for prog in best_solution:
     print(prog)
 
 # save_plan_csv(best_solution, 'plan')
-print("Global waiting time : ", aco.evaluate_solution(best_solution))
+print("Global waiting time : ", pso._evaluate(best_solution))
 print("Proposed slots : ", best_solution.__len__())
 print("Locomotions needed :  ", process_required_locomotions(best_solution).__len__())
