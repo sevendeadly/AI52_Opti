@@ -11,24 +11,18 @@ Paramètres clés : taille de la liste tabou, critère d'arrêt, méthode de div
 Let's assume between midnigh and 6am, there is no bus
 """
 # libraries importation
-from src.models.plan import Prog, is_valid_plan, generate_derivated_plan, generate_random_plan, generate_plan_on_peak
+from src.models.plan import Prog, generate_derivated_plan, generate_plan_on_peak
 from src.models.stations import process_global_waiting_time
 from src.models.demand import Demand
-from src.utils.time import DAYTIME
-import random as rd
-from copy import deepcopy
+from src.utils.constants import LOCOMOTION_CAPACITY, NUM_PROGS, PEAK_REPARTITION
 
 class TabuSearch:
     def __init__(
             self, 
             max_list_shape: int, 
             num_iterations: int, 
-            num_progs: int, 
-            num_locomotions: int,
-            locomotion_capacity: int,
-            time_matrix: list[int],
             passengers_demand: list[Demand],
-            peak_repartition: list[(DAYTIME, float)],
+            time_matrix: list[int],
             target_fitness=0.0,
         ):
         """
@@ -37,28 +31,39 @@ class TabuSearch:
         Args:
             max_list_shape (int): The length of a Tabu search list
             num_iterations (int): maximum number of iterations
-            num_progs (int): Number of progs in the schedule
-            num_locomotions (int): Number of locomotions in the schedule
-            locomotion_capacity (int): Capacity of each locomotion
-            time_matrix (list[int]): List of time intervals between each stop
             passengers_demand (list[Demand]): List of passengers demand
-            peak_repartition (list[(DAYTIME, float)]): peak constraints with daytime intervals and associated probabilities
+            time_matrix (list[int]): List of time intervals between each stop
             target_fitness (float): The fitness targeted by the optimisation
         """
         self.max_list_shape = max_list_shape
         self.num_iterations = num_iterations
         self.target_fitness = target_fitness
-        self.num_progs = num_progs
-        self.num_locomotions = num_locomotions
-        self.locomotion_capacity = locomotion_capacity
         self.time_matrix = time_matrix
         self.passengers_demand = passengers_demand
-        self.peak_repartition = peak_repartition
 
     def evaluate_solution(self, plan: list[Prog]) -> int:
-        return process_global_waiting_time(plan, self.passengers_demand*1, self.time_matrix, self.locomotion_capacity)
+        """
+        Evaluate the solution cost
+
+        Args:
+            plan (list[Prog]): The plan to evaluate
+
+        Returns:
+            int: The cost of the plan
+        """
+        return round(process_global_waiting_time(plan, self.passengers_demand*1, self.time_matrix, LOCOMOTION_CAPACITY), 5) 
     
     def find_best_tabou_move(self, plan: list[Prog], index:int) -> tuple[int, int, bool]:
+        """
+        Find the best tabou move for a given plan
+
+        Args:
+            plan (list[Prog]): The plan to evaluate
+            index (int): The index of the plan to evaluate
+        
+        Returns:
+            tuple[int, int, bool]: The best tabou move
+        """
         neighbors: list[list[Prog]] = []
         tabou_moves = [
             (index, 2, False), (index, 1, False), (index, -1, False), (index, -2, False), 
@@ -79,7 +84,7 @@ class TabuSearch:
     
     def optimize(self):
         # Generate an initial solution, consider it as the best one
-        best_plan = generate_plan_on_peak(self.num_progs, sum(self.time_matrix), self.peak_repartition)
+        best_plan = generate_plan_on_peak(NUM_PROGS, sum(self.time_matrix), PEAK_REPARTITION)
         best_cost = self.evaluate_solution(best_plan)
         # Create an exploration best solution 
         exploration_best_plan = best_plan
@@ -92,7 +97,7 @@ class TabuSearch:
         
         # Set an algorithm's breaking condition
         while current_iteration < self.num_iterations or best_cost <= self.target_fitness:
-            print("Iteration : ", current_iteration+1)
+            print("Iteration : ", current_iteration+1, " / ", self.num_iterations)
             local_best_plans: list[list[Prog]] = []
             local_tabou_moves: list[tuple[int, int, bool]] = []
             local_best_costs: list[int] = []
@@ -106,7 +111,6 @@ class TabuSearch:
                 local_best_costs.append(self.evaluate_solution(local_best_plan))
 
             local_best_costs = [int(cost) for cost in local_best_costs]
-            print("tabou_list : ", tabou_list)
 
             if(min(local_best_costs) < best_cost):
                 absolute_best_index = local_best_costs.index(min(local_best_costs))
@@ -131,7 +135,6 @@ class TabuSearch:
                     # Exclude the current index
                     excluded_indexes.append(current_index)
                     excluded_indexes = list(set(excluded_indexes))
-                    print("Excluded indexes : ", excluded_indexes)
 
                     local_best_cost = min(
                         local_best_costs[idx] for idx in range(len(local_best_costs)) if idx not in excluded_indexes
@@ -146,7 +149,6 @@ class TabuSearch:
                 exploration_best_plan = local_best_plan
                 exploration_best_cost = self.evaluate_solution(local_best_plan)
 
-            print("Exploration cost : ", exploration_best_cost)
             # Update the global best stats
             if exploration_best_cost < best_cost:
                 best_plan = exploration_best_plan
