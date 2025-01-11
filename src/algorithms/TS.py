@@ -14,7 +14,7 @@ Let's assume between midnigh and 6am, there is no bus
 from src.models.plan import Prog, generate_derivated_plan, generate_plan_on_peak
 from src.models.stations import process_global_waiting_time
 from src.models.demand import Demand
-from src.utils.constants import LOCOMOTION_CAPACITY, NUM_PROGS, PEAK_REPARTITION
+from src.utils.constants import NUM_PROGS, PEAK_REPARTITION
 
 class TabuSearch:
     def __init__(
@@ -51,7 +51,7 @@ class TabuSearch:
         Returns:
             int: The cost of the plan
         """
-        return round(process_global_waiting_time(plan, self.passengers_demand*1, self.time_matrix, LOCOMOTION_CAPACITY), 5) 
+        return round(process_global_waiting_time(plan, self.passengers_demand*1, self.time_matrix), 5) 
     
     def find_best_tabou_move(self, plan: list[Prog], index:int) -> tuple[int, int, bool]:
         """

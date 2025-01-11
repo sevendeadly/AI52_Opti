@@ -13,7 +13,7 @@ from src.models.plan import Prog
 from src.models.plan import generate_derivated_plan, generate_plan_on_peak
 from src.models.demand import Demand
 from src.models.stations import process_global_waiting_time
-from src.utils.constants import LOCOMOTION_CAPACITY, NUM_LOCOMOTIONS, NUM_PROGS, PEAK_REPARTITION, MAX_LOCOMOTION_SLOT_VARIATION
+from src.utils.constants import NUM_PROGS, PEAK_REPARTITION, MAX_LOCOMOTION_SLOT_VARIATION
 from copy import deepcopy
 
 class SimulatedAnnealing:
@@ -93,7 +93,7 @@ class SimulatedAnnealing:
         Returns:
             int: fitness of the solution
         """
-        global_waiting_time = process_global_waiting_time(solution, self.passengers_demand*1, self.time_matrix, LOCOMOTION_CAPACITY)
+        global_waiting_time = process_global_waiting_time(solution, self.passengers_demand*1, self.time_matrix)
         return round(global_waiting_time / (self.passengers_demand.__len__()*60*60), 5)
     
     # Run the Simulated Annealing algorithm

@@ -4,6 +4,7 @@
 from src.utils.time import DAYTIME
 
 # all the constraints definitions to run the program (time in minutes)
+NUM_STOPS = 4
 LOCOMOTION_CAPACITY = 50
 SERVICE_START = 6 * 60
 SERVICE_END = 24 * 60

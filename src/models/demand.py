@@ -49,7 +49,7 @@ def generate_demand_sample(num_stops: int, num_demands: int, peak_repartition: l
         peak_repartition (list[(DAYTIME, float)]): peak constraints with daytime intervals and associated probabilities 
 
     Returns:
-        list[int]: random demand sample representative of the peak repartition
+        list[Demand]: random demand sample representative of the peak repartition
     """
     demand_sample: list[Demand] = []
 
@@ -89,6 +89,13 @@ def generate_demand_sample(num_stops: int, num_demands: int, peak_repartition: l
 
 # Save a passengers demand as a csv file
 def save_demand_as_instance(passengers_demand: list[Demand], file_name: str) -> None:
+    """
+    Save a passengers demand as a csv file.
+
+    Args:
+        passengers_demand (list[Demand]): list of passengers demand
+        file_name (str): name of the file to save the demand
+    """
     file_location = f'data/instances/{file_name}.csv'
     with open(file_location, 'w', newline='', encoding='utf-8') as csv_file:
 
@@ -105,6 +112,15 @@ def save_demand_as_instance(passengers_demand: list[Demand], file_name: str) -> 
 
 # Load passengers demand from csv
 def load_demand_from_instance(file_name: str) -> list[Demand]:
+    """
+    Load passengers demand from csv.
+
+    Args:
+        file_name (str): name of the file to load the demand
+
+    Returns:
+        list[Demand]: list of passengers demand
+    """
     passengers_demands: list[Demand] = []
     file_location = f'data/instances/{file_name}.csv'
 

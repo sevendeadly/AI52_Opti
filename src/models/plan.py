@@ -6,7 +6,7 @@ Gilles NGASSAM & Daniel KOANGA
 # Librairies importation
 from datetime import time
 from src.utils.time import convertTimeStamp, DAYTIME
-from src.utils.constants import NUM_LOCOMOTIONS, SERVICE_START, SERVICE_END, MAX_LOCOMOTION_SLOT_VARIATION, PEAK_TIME_INTERVALS, DIRECTION_REPARTITION, PLAN_INSTANCE_HEADERS, UP_TERMINUS, DOWN_TERMINUS
+from src.utils.constants import NUM_LOCOMOTIONS, SERVICE_START, SERVICE_END, PEAK_TIME_INTERVALS, DIRECTION_REPARTITION, PLAN_INSTANCE_HEADERS, UP_TERMINUS, DOWN_TERMINUS
 import random as rd
 import copy
 import csv

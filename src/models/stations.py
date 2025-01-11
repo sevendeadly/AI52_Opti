@@ -7,11 +7,9 @@ Gilles NGASSAM & Daniel KOANGA
 import copy
 import random as rd
 import numpy as np
-from datetime import time
 from src.models.plan import Prog
 from src.models.demand import Demand
-from src.utils.time import convertTimeStamp
-from src.utils.constants import MIN_TIME_BETWEEN_STOPS, MAX_TIME_BETWEEN_STOPS, SERVICE_END
+from src.utils.constants import MIN_TIME_BETWEEN_STOPS, MAX_TIME_BETWEEN_STOPS, SERVICE_END, LOCOMOTION_CAPACITY
 
 # Generate a traveling time's array between two consecutives stops
 def generate_time_matrix(num_stops: int) -> list[int]:
@@ -36,8 +34,7 @@ def generate_time_matrix(num_stops: int) -> list[int]:
 def process_global_waiting_time(
         solution : list[Prog], 
         passengers_demand: list[Demand], 
-        time_matrix: list[int], 
-        locomotion_capacity: int
+        time_matrix: list[int]
     ) -> int:
     """
     Calculate the total waiting time for a given schedule.
@@ -46,7 +43,6 @@ def process_global_waiting_time(
         solution (list[Prog]): schedule to evaluate
         passengers_demand (list[Demand]): list of passengers demand
         time_matrix (list[int]): list of time intervals between each stop
-        locomotion_capacity (int): capacity of each locomotion
 
     Returns:
         int: total waiting time
@@ -82,7 +78,7 @@ def process_global_waiting_time(
             ]
 
             # take only the passengers that can board the bus in the limit of the bus capacity
-            passengers_to_board = passengers_on_time[:(locomotion_capacity - current_passengers_on_board.__len__())]
+            passengers_to_board = passengers_on_time[:(LOCOMOTION_CAPACITY - current_passengers_on_board.__len__())]
 
             # update the number of passengers on board
             current_passengers_on_board += passengers_to_board

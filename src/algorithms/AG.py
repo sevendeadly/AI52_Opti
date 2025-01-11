@@ -12,7 +12,7 @@ Let's assume between midnigh and 6am, there is no bus
 """
 # libraries importation
 from src.models.plan import Prog, is_valid_plan, generate_derivated_plan, generate_plan_on_peak
-from src.utils.constants import LOCOMOTION_CAPACITY, NUM_LOCOMOTIONS, PEAK_REPARTITION, NUM_PROGS
+from src.utils.constants import PEAK_REPARTITION, NUM_PROGS
 from src.models.demand import Demand
 import random as rd
 from src.models.stations import process_global_waiting_time
@@ -108,7 +108,7 @@ class GeneticAlgorithm:
         Returns:
             int: the fitness score of the individual
         """
-        global_waiting_time = process_global_waiting_time(individual, self.passengers_demand*1, self.time_matrix, LOCOMOTION_CAPACITY)
+        global_waiting_time = process_global_waiting_time(individual, self.passengers_demand*1, self.time_matrix)
         
         return round(global_waiting_time / (60*60*self.passengers_demand.__len__()), 10)
 

@@ -15,12 +15,11 @@ Let's assume between midnight and 6am, there is no bus
 from src.models.plan import Prog, is_valid_plan, generate_derivated_plan, generate_random_plan, generate_plan_on_peak
 from src.models.stations import process_global_waiting_time
 from src.models.demand import Demand
-from src.utils.constants import LOCOMOTION_CAPACITY, NUM_LOCOMOTIONS, SERVICE_START, SERVICE_END, NUM_PROGS, PEAK_REPARTITION, DIRECTION_REPARTITION
+from src.utils.constants import SERVICE_START, SERVICE_END, NUM_PROGS, DIRECTION_REPARTITION
 from src.utils.time import convertTimeStamp
 import random as rd
 from collections import Counter
 import numpy as np
-from copy import deepcopy
 
 class AntColonyOptimization:
     def __init__(
@@ -76,7 +75,7 @@ class AntColonyOptimization:
                 # derive and estimate the waiting time for each time slot in both directions
                 time = convertTimeStamp((j + SERVICE_START) * 60)
                 prog = Prog(time, sum(self.time_matrix), direction)
-                waiting_time = process_global_waiting_time([prog], self.passenger_demands*1, self.time_matrix, LOCOMOTION_CAPACITY)
+                waiting_time = process_global_waiting_time([prog], self.passenger_demands*1, self.time_matrix)
 
                 # Update the visibility trail by inversing the waiting time
                 self.visibility_trails[i][j] = (1 / waiting_time)
@@ -92,7 +91,7 @@ class AntColonyOptimization:
         Returns:
             int: the fitness of the plan
         """
-        return process_global_waiting_time(plan, self.passenger_demands*1, self.time_matrix, LOCOMOTION_CAPACITY)
+        return process_global_waiting_time(plan, self.passenger_demands*1, self.time_matrix)
     
     # Update pheromone trails by ant movement
     def update_pheromone_trails(self, ant_plans: list[list[Prog]]):
