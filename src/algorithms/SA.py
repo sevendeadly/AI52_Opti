@@ -13,7 +13,7 @@ from src.models.plan import Prog
 from src.models.plan import generate_derivated_plan, generate_plan_on_peak
 from src.models.demand import Demand
 from src.models.stations import process_global_waiting_time
-from src.utils.constants import NUM_PROGS, PEAK_REPARTITION, MAX_LOCOMOTION_SLOT_VARIATION
+from src.utils.constants import NUM_PROGS, PEAK_REPARTITION, MAX_PROG_VARIATION
 from copy import deepcopy
 
 class SimulatedAnnealing:
@@ -60,7 +60,7 @@ class SimulatedAnnealing:
             list[Prog]: neighbor solution
         """
         mutation_point = rd.randint(0, current_solution.__len__() - 1)
-        minutes_rotation = rd.randint(-MAX_LOCOMOTION_SLOT_VARIATION,MAX_LOCOMOTION_SLOT_VARIATION)
+        minutes_rotation = rd.randint(-MAX_PROG_VARIATION, MAX_PROG_VARIATION)
         direction = rd.choice([True, False])
         changer = (mutation_point, minutes_rotation, direction)
 

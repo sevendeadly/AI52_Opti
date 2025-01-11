@@ -12,11 +12,10 @@ Let's assume between midnight and 6am, there is no bus
 """
 
 # libraries importation
-from src.models.plan import Prog, generate_derivated_plan, generate_random_plan, generate_plan_on_peak
+from src.models.plan import Prog, generate_derivated_plan, generate_plan_on_peak
 from src.models.stations import process_global_waiting_time
 from src.models.demand import Demand
-from src.utils.constants import NUM_PROGS, PEAK_REPARTITION, MAX_LOCOMOTION_SLOT_VARIATION
-from src.utils.time import convertTimeStamp
+from src.utils.constants import NUM_PROGS, PEAK_REPARTITION, MAX_PROG_VARIATION
 import random as rd
 
 class ParticleSwarmOptimization:
@@ -61,7 +60,7 @@ class ParticleSwarmOptimization:
 
         # Initialize velocity with random values
         for _ in range(self.num_particles):
-            velocity = [rd.randint(-MAX_LOCOMOTION_SLOT_VARIATION, MAX_LOCOMOTION_SLOT_VARIATION) for _ in range(NUM_PROGS)]
+            velocity = [rd.randint(-MAX_PROG_VARIATION, MAX_PROG_VARIATION) for _ in range(NUM_PROGS)]
             velocities.append(velocity)
         
         return velocities
