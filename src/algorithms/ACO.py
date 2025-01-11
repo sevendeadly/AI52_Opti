@@ -134,7 +134,7 @@ class AntColonyOptimization:
                 ant_plan: list[Prog] = []
                 all_progs_directions = rd.choices([False, True], weights=DIRECTION_REPARTITION, k=NUM_PROGS)
 
-                while not is_valid_plan(ant_plan, NUM_LOCOMOTIONS) or ant_plan.__len__() != NUM_PROGS:
+                while not is_valid_plan(ant_plan) or ant_plan.__len__() != NUM_PROGS:
                     ant_plan: list[Prog] = []
 
                     # Choose the next time slot based on pheromone trails and visibility on the down direction

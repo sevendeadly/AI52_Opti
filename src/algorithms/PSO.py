@@ -12,7 +12,7 @@ Let's assume between midnight and 6am, there is no bus
 """
 
 # libraries importation
-from src.models.plan import Prog, is_valid_plan, generate_derivated_plan, generate_random_plan, generate_plan_on_peak
+from src.models.plan import Prog, generate_derivated_plan, generate_random_plan, generate_plan_on_peak
 from src.models.stations import process_global_waiting_time
 from src.models.demand import Demand
 from src.utils.constants import LOCOMOTION_CAPACITY, NUM_LOCOMOTIONS, SERVICE_START, SERVICE_END, NUM_PROGS, PEAK_REPARTITION, DIRECTION_REPARTITION, MAX_LOCOMOTION_SLOT_VARIATION

@@ -139,7 +139,7 @@ def process_required_locomotions(plan: list[Prog]) -> list[Locomotion]:
     return required_locomotions
 
 # Check if a plan is valid according to locomotion fleet
-def is_valid_plan(plan: list[Prog], max_num_locomotions: int) -> bool:
+def is_valid_plan(plan: list[Prog]) -> bool:
     """
     Check if a plan is valid.
 
@@ -151,7 +151,7 @@ def is_valid_plan(plan: list[Prog], max_num_locomotions: int) -> bool:
     """
     locomotions = process_required_locomotions(plan)
 
-    return locomotions.__len__() <= max_num_locomotions and plan.__len__() > 0
+    return locomotions.__len__() <= NUM_LOCOMOTIONS and plan.__len__() > 0
 
 # Generate a random plan
 def generate_random_plan(num_progs: int, duration: int) -> list[Prog]:
@@ -167,7 +167,7 @@ def generate_random_plan(num_progs: int, duration: int) -> list[Prog]:
     """
     plan: list[Prog] = []
 
-    while not is_valid_plan(plan, NUM_LOCOMOTIONS):
+    while not is_valid_plan(plan):
         # Initialize an empty plan
         plan: list[Prog] = []
 
@@ -215,7 +215,7 @@ def generate_plan_on_peak(num_progs: int, duration: int, peak_repartition: list[
     # Generate the peak constraints according to direction
     directions = rd.choices([True, False], DIRECTION_REPARTITION, k=num_progs)
 
-    while not is_valid_plan(plan, NUM_LOCOMOTIONS):
+    while not is_valid_plan(plan):
         # Initialize an empty plan
         plan = []
 
@@ -241,36 +241,6 @@ def generate_plan_on_peak(num_progs: int, duration: int, peak_repartition: list[
     return plan
 
 # Generate a near plan derivated from a given one
-def generate_derivated_plan(plan: list[Prog]) -> list[Prog]:
-    neighbor_plan = copy.deepcopy(plan)
-
-    # Select a random modification point
-    prog_to_modify = rd.choice(neighbor_plan)
-    neighbor_plan.remove(prog_to_modify)
-
-    # Get the start time of the prog to mutate
-    prog_to_mutate_start_time = prog_to_modify.process_tour_start()
-
-    while not (is_valid_plan(neighbor_plan, NUM_LOCOMOTIONS) and plan.__len__() == neighbor_plan.__len__()):
-        # Generate a random time variation
-        random_time_seconds = int(rd.randint(-MAX_LOCOMOTION_SLOT_VARIATION, MAX_LOCOMOTION_SLOT_VARIATION) * 60)
-        new_start_time_seconds = prog_to_mutate_start_time + random_time_seconds
-        # Make sure the departure time is within the service hours
-        new_start_time_seconds = max(new_start_time_seconds, SERVICE_START * 60)
-        new_start_time_seconds = min(new_start_time_seconds, SERVICE_END * 60)
-        new_start_time = convertTimeStamp(new_start_time_seconds)
-
-        # Try to add it to the mutated
-        new_prog = Prog(new_start_time, prog_to_modify.duration, prog_to_modify.direction)
-        if is_valid_plan(neighbor_plan + [new_prog], NUM_LOCOMOTIONS):
-            neighbor_plan.append(new_prog)
-
-    # sort the mutated individual by time
-    neighbor_plan.sort(key=lambda prog: prog.time)
-
-    return neighbor_plan
-
-# Generate a near plan derivated from a given one
 def generate_derivated_plan(plan: list[Prog], changer: tuple[int, int, bool]) -> list[Prog]:
     neighbor_plan = copy.deepcopy(plan)
 
@@ -281,7 +251,7 @@ def generate_derivated_plan(plan: list[Prog], changer: tuple[int, int, bool]) ->
     # Get the start time of the prog to mutate
     prog_to_mutate_start_time = prog_to_modify.process_tour_start()
 
-    while not is_valid_plan(neighbor_plan, NUM_LOCOMOTIONS) or neighbor_plan.__len__() != plan.__len__():
+    while not is_valid_plan(neighbor_plan) or neighbor_plan.__len__() != plan.__len__():
         # Generate a random time variation
         time_seconds = int(changer[1] * 60)
         new_start_time_seconds = prog_to_mutate_start_time + time_seconds
@@ -294,7 +264,7 @@ def generate_derivated_plan(plan: list[Prog], changer: tuple[int, int, bool]) ->
 
         # Try to add it to the mutated
         new_prog = Prog(new_start_time, prog_to_modify.duration, direction)
-        if is_valid_plan(neighbor_plan + [new_prog], NUM_LOCOMOTIONS):
+        if is_valid_plan(neighbor_plan + [new_prog]):
             neighbor_plan.append(new_prog)
 
     # sort the mutated individual by time

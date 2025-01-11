@@ -79,7 +79,7 @@ class GeneticAlgorithm:
         Returns:
             bool: True if the individual is valid, False otherwise
         """
-        return is_valid_plan(individual, NUM_LOCOMOTIONS) and individual.__len__() <= NUM_PROGS
+        return is_valid_plan(individual) and individual.__len__() <= NUM_PROGS
     
     # Generate the initial population
     def generate_population(self) -> list[list[Prog]]:
