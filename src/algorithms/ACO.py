@@ -91,7 +91,11 @@ class AntColonyOptimization:
         Returns:
             int: the fitness of the plan
         """
-        return process_global_waiting_time(plan, self.passenger_demands*1, self.time_matrix)
+        global_waiting_time = process_global_waiting_time(plan, self.passenger_demands*1, self.time_matrix) 
+        global_waiting_time /= (60*60*self.passenger_demands.__len__())
+        
+        return round(global_waiting_time , 5)    
+
     
     # Update pheromone trails by ant movement
     def update_pheromone_trails(self, ant_plans: list[list[Prog]]):

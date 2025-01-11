@@ -126,7 +126,10 @@ class ParticleSwarmOptimization:
             int: the fitness of the particle
         """
         # Evaluate the particle's fitness
-        return process_global_waiting_time(particle, self.passenger_demands, self.time_matrix)
+        global_waiting_time: float = process_global_waiting_time(particle, self.passenger_demands, self.time_matrix)
+        global_waiting_time /= (60*60*self.passenger_demands.__len__())
+
+        return round(global_waiting_time, 5)
     
     def optimize(self) -> list[Prog]:
         # Initialize particles

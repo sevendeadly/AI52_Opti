@@ -94,6 +94,7 @@ class SimulatedAnnealing:
             int: fitness of the solution
         """
         global_waiting_time = process_global_waiting_time(solution, self.passengers_demand*1, self.time_matrix)
+        
         return round(global_waiting_time / (self.passengers_demand.__len__()*60*60), 5)
     
     # Run the Simulated Annealing algorithm

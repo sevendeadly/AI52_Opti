@@ -1,68 +1,34 @@
-import argparse
+from src.models.stations import generate_time_matrix, process_global_waiting_time
+from src.models.demand import generate_demand_sample, save_demand_as_instance, load_demand_from_instance
+from src.models.plan import process_required_locomotions
+from src.utils.constants import NUM_STOPS, PEAK_REPARTITION
+from src.algorithms.TS import TabuSearch
+from src.algorithms.ACO import AntColonyOptimization
+from src.algorithms.PSO import ParticleSwarmOptimization
+from src.algorithms.AG import GeneticAlgorithm
+from src.algorithms.SA import SimulatedAnnealing
 
-from src.algorithms.RT import TabuSearch
+time_matrix = generate_time_matrix(NUM_STOPS)
 
-""" 
-from src.algorithms import (
-    SimulatedAnnealing,
-    GeneticAlgorithm,
-    TabuSearch,
-    AntColony,
-    ParticleSwarm
-)
-"""
+demands = generate_demand_sample(time_matrix.__len__() + 1, 5000, PEAK_REPARTITION)
 
-from src.models.schedule import Schedule
-from src.utils.evaluation import Evaluator
-import logging
+save_demand_as_instance(demands, 'instance_1')
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# demands = load_demand_from_instance('instance_1')
 
+ts = TabuSearch(8, 100, demands, time_matrix, 3600)
+# ga = GeneticAlgorithm(100, 10, 0.7, 0.1, 0.8, passengers_demand=demands*1, time_matrix=time_matrix)
+# sa = SimulatedAnnealing(10000, 0.05, 50, 1000, demands*1, time_matrix)
+# aco = AntColonyOptimization(5, 100, 2, 1, 0.1, demands*1, time_matrix)
+# pso = ParticleSwarmOptimization(100, 100, 0.6, 1.5, 1, demands*1, time_matrix)
+best_solution = ts.optimize()
 
-def parse_args():
-    parser = argparse.ArgumentParser(description='Public Transport Schedule Optimization')
-    parser.add_argument('--algorithm', type=str, default='all',
-                        choices=['sa', 'ga', 'ts', 'aco', 'pso', 'all'],
-                        help='Metaheuristic algorithm to use')
-    parser.add_argument('--data', type=str, default='data/instance.json',
-                        help='Path to problem instance')
-    parser.add_argument('--output', type=str, default='results/comparison.json',
-                        help='Output file path')
-    return parser.parse_args()
+print("Best solution : ")
+best_solution.sort(key=lambda prog: prog.direction)
+for prog in best_solution:
+    print(prog)
 
-
-def main():
-    args = parse_args()
-    #Create initial schdule from data
-
-    initial_schedule = Schedule.deserialize(args.data)
-
-    algorithms = {
-        #'sa': SimulatedAnnealing,
-        #'ga': GeneticAlgorithm,
-        'ts': TabuSearch,
-        #'aco': AntColony,
-        #'pso': ParticleSwarm
-    }
-
-
-    results = {}
-
-    if args.algorithm == 'all':
-        for name, algo in algorithms.items():
-            logger.info(f"Running {name.upper()} optimization")
-            optimizer = algo(initial_schedule)
-            results[name] = optimizer.optimize()
-    else:
-        optimizer = algorithms[args.algorithm](initial_schedule)
-        results[args.algorithm] = optimizer.optimize()
-
-    #Evaluator.evaluate_results(results, args.output)
-
-
-if __name__ == "__main__":
-    main()
+# save_plan_csv(best_solution, 'plan')
+print("Global waiting time : ", process_global_waiting_time(best_solution, demands, time_matrix))
+print("Proposed slots : ", best_solution.__len__())
+print("Locomotions needed :  ", process_required_locomotions(best_solution).__len__())

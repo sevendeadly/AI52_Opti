@@ -41,7 +41,7 @@ class TabuSearch:
         self.time_matrix = time_matrix
         self.passengers_demand = passengers_demand
 
-    def evaluate_solution(self, plan: list[Prog]) -> int:
+    def evaluate_solution(self, plan: list[Prog]) -> float:
         """
         Evaluate the solution cost
 
@@ -49,9 +49,12 @@ class TabuSearch:
             plan (list[Prog]): The plan to evaluate
 
         Returns:
-            int: The cost of the plan
+            float: The cost of the plan
         """
-        return round(process_global_waiting_time(plan, self.passengers_demand*1, self.time_matrix), 5) 
+        global_waiting_time: float = process_global_waiting_time(plan, self.passengers_demand*1, self.time_matrix)
+        global_waiting_time /= (60*60*self.passengers_demand.__len__())
+
+        return round(global_waiting_time, 5) 
     
     def find_best_tabou_move(self, plan: list[Prog], index:int) -> tuple[int, int, bool]:
         """
@@ -69,7 +72,7 @@ class TabuSearch:
             (index, 2, False), (index, 1, False), (index, -1, False), (index, -2, False), 
             (index, 2, False), (index, 1, True), (index, 0, True), (index, -1, True), (index, -2, False)
         ]
-        neighbor_costs: list[int] = []
+        neighbor_costs: list[float] = []
 
         # Generate neighbor from tabou moves array
         for changer in tabou_moves:
@@ -85,7 +88,7 @@ class TabuSearch:
     def optimize(self):
         # Generate an initial solution, consider it as the best one
         best_plan = generate_plan_on_peak(NUM_PROGS, sum(self.time_matrix), PEAK_REPARTITION)
-        best_cost = self.evaluate_solution(best_plan)
+        best_cost: float = self.evaluate_solution(best_plan)
         # Create an exploration best solution 
         exploration_best_plan = best_plan
         exploration_best_cost = best_cost
@@ -100,7 +103,7 @@ class TabuSearch:
             print("Iteration : ", current_iteration+1, " / ", self.num_iterations)
             local_best_plans: list[list[Prog]] = []
             local_tabou_moves: list[tuple[int, int, bool]] = []
-            local_best_costs: list[int] = []
+            local_best_costs: list[float] = []
 
             for index, _ in enumerate(exploration_best_plan):
                 local_tabou_move = self.find_best_tabou_move(exploration_best_plan, index)
@@ -109,8 +112,6 @@ class TabuSearch:
                 local_best_plans.append(local_best_plan)
                 local_tabou_moves.append(local_tabou_move)
                 local_best_costs.append(self.evaluate_solution(local_best_plan))
-
-            local_best_costs = [int(cost) for cost in local_best_costs]
 
             if(min(local_best_costs) < best_cost):
                 absolute_best_index = local_best_costs.index(min(local_best_costs))
