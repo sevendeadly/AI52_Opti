@@ -12,13 +12,14 @@ Let's assume between midnight and 6am, there is no bus
 """
 
 # libraries importation
+from src.algorithms.Optimizer import Optimizer
 from src.models.plan import Prog, generate_derivated_plan, generate_plan_on_peak
 from src.models.stations import process_global_waiting_time
 from src.models.demand import Demand
 from src.utils.constants import NUM_PROGS, PEAK_REPARTITION, MAX_PROG_VARIATION
 import random as rd
 
-class ParticleSwarmOptimization:
+class ParticleSwarmOptimization(Optimizer):
     def __init__(
             self, 
             num_particles: int, 

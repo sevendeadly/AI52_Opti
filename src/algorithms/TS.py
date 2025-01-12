@@ -11,12 +11,13 @@ Paramètres clés : taille de la liste tabou, critère d'arrêt, méthode de div
 Let's assume between midnigh and 6am, there is no bus
 """
 # libraries importation
+from src.algorithms.Optimizer import Optimizer
 from src.models.plan import Prog, generate_derivated_plan, generate_plan_on_peak
 from src.models.stations import process_global_waiting_time
 from src.models.demand import Demand
 from src.utils.constants import NUM_PROGS, PEAK_REPARTITION
 
-class TabuSearch:
+class TabuSearch(Optimizer):
     def __init__(
             self, 
             max_list_shape: int, 

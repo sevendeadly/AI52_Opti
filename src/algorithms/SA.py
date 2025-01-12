@@ -7,6 +7,7 @@ Paramètres clés : température initiale, taux de refroidissement, itérations 
 """
 
 # Librairies importation
+from src.algorithms.Optimizer import Optimizer
 import math
 import random as rd
 from src.models.plan import Prog
@@ -16,7 +17,7 @@ from src.models.stations import process_global_waiting_time
 from src.utils.constants import NUM_PROGS, PEAK_REPARTITION, MAX_PROG_VARIATION
 from copy import deepcopy
 
-class SimulatedAnnealing:
+class SimulatedAnnealing(Optimizer):
     def __init__(
             self, 
             initial_temperature: float, 

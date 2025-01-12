@@ -12,6 +12,7 @@ Let's assume between midnight and 6am, there is no bus
 """
 
 # libraries importation
+from src.algorithms.Optimizer import Optimizer
 from src.models.plan import Prog, is_valid_plan
 from src.models.stations import process_global_waiting_time
 from src.models.demand import Demand
@@ -21,7 +22,7 @@ import random as rd
 from collections import Counter
 import numpy as np
 
-class AntColonyOptimization:
+class AntColonyOptimization(Optimizer):
     def __init__(
             self, 
             num_ants: int, 

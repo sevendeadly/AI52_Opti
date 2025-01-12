@@ -11,6 +11,7 @@ Paramètres clés : taille de population, taux de croisement, taux de mutation
 Let's assume between midnigh and 6am, there is no bus
 """
 # libraries importation
+from src.algorithms.Optimizer import Optimizer
 from src.models.plan import Prog, is_valid_plan, generate_derivated_plan, generate_plan_on_peak
 from src.utils.constants import PEAK_REPARTITION, NUM_PROGS
 from src.models.demand import Demand
@@ -18,7 +19,7 @@ import random as rd
 from src.models.stations import process_global_waiting_time
 
 
-class GeneticAlgorithm:
+class GeneticAlgorithm(Optimizer):
     # Constructor
     def __init__(
             self, num_generations: int, 

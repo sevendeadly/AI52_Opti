@@ -7,6 +7,7 @@ from src.algorithms.ACO import AntColonyOptimization
 from src.algorithms.PSO import ParticleSwarmOptimization
 from src.algorithms.AG import GeneticAlgorithm
 from src.algorithms.SA import SimulatedAnnealing
+from src.algorithms.Optimizer import Optimizer
 
 if __name__ == '__main__':
     time_matrix = generate_time_matrix(NUM_STOPS)
@@ -17,12 +18,18 @@ if __name__ == '__main__':
 
     demands = load_demand_from_instance('instance_1')
 
+    chosen_heuristic: Optimizer = None
     # ts = TabuSearch(8, 100, demands, time_matrix, 3600)
-    # ga = GeneticAlgorithm(100, 10, 0.7, 0.1, 0.8, passengers_demand=demands*1, time_matrix=time_matrix)
+    ga = GeneticAlgorithm(100, 10, 0.7, 0.1, 0.8, passengers_demand=demands*1, time_matrix=time_matrix)
     # sa = SimulatedAnnealing(10000, 0.05, 50, 1000, demands*1, time_matrix)
-    aco = AntColonyOptimization(20, 100, 1, 1, 0.1, demands*1, time_matrix)
+    # aco = AntColonyOptimization(20, 100, 1, 1, 0.1, demands*1, time_matrix)
     # pso = ParticleSwarmOptimization(100, 100, 0.6, 1.5, 1, demands*1, time_matrix)
-    best_solution = aco.optimize()
+
+    # select the heuristic to use
+    chosen_heuristic = ga
+
+    # Start the optimization process
+    best_solution = chosen_heuristic.optimize()
 
     print("Best solution : ")
     best_solution.sort(key=lambda prog: prog.direction)
