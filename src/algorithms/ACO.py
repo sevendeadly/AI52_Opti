@@ -75,13 +75,13 @@ class AntColonyOptimization:
                 # derive and estimate the waiting time for each time slot in both directions
                 time = convertTimeStamp((j + SERVICE_START) * 60)
                 prog = Prog(time, sum(self.time_matrix), direction)
-                waiting_time = process_global_waiting_time([prog], self.passenger_demands*1, self.time_matrix)
+                waiting_time = self.evaluate_solution([prog])
 
                 # Update the visibility trail by inversing the waiting time
                 self.visibility_trails[i][j] = (1 / waiting_time)
 
     # Evaluate the fitness of a locomotion plan
-    def evaluate_solution(self, plan: list[Prog]) -> int:
+    def evaluate_solution(self, plan: list[Prog]) -> float:
         """
         Evaluate the fitness of a locomotion plan
 
