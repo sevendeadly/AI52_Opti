@@ -1,7 +1,7 @@
 from src.models.stations import generate_time_matrix, process_global_waiting_time
 from src.models.demand import generate_demand_sample, save_demand_as_instance, load_demand_from_instance
 from src.models.plan import process_required_locomotions
-from src.utils.constants import NUM_STOPS, PEAK_REPARTITION, PASSENGERS_DEMAND
+from src.utils.constants import NUM_STOPS, PEAK_REPARTITION, PASSENGERS_DEMAND, TIME_MATRIX
 from src.algorithms.TS import TabuSearch
 from src.algorithms.ACO import AntColonyOptimization
 from src.algorithms.PSO import ParticleSwarmOptimization
@@ -36,7 +36,7 @@ def visualization(fitness_variations: list[float]):
     plt.show()
 
 if __name__ == '__main__':
-    time_matrix = generate_time_matrix(NUM_STOPS)
+    time_matrix = TIME_MATRIX # generate_time_matrix(NUM_STOPS)
 
     # demands = generate_demand_sample(time_matrix.__len__() + 1, PASSENGERS_DEMAND, PEAK_REPARTITION)
 
@@ -45,14 +45,14 @@ if __name__ == '__main__':
     demands = load_demand_from_instance('instance_1')
 
     chosen_heuristic: Optimizer = None
-    ts = TabuSearch(8, 100, demands, time_matrix, 0.05)
+    # ts = TabuSearch(8, 100, demands, time_matrix, 0.05)
     # ga = GeneticAlgorithm(100, 10, 0.7, 0.1, 0.8, passengers_demand=demands*1, time_matrix=time_matrix)
-    # sa = SimulatedAnnealing(170000, 0.05, 50, 1000, demands*1, time_matrix)
-    aco = AntColonyOptimization(20, 100, 3, 1, 0.1, demands*1, time_matrix)
+    sa = SimulatedAnnealing(170000, 0.05, 50, 1000, demands*1, time_matrix)
+    # aco = AntColonyOptimization(20, 100, 3, 1, 0.1, demands*1, time_matrix)
     # pso = ParticleSwarmOptimization(100, 100, 0.6, 1.5, 1, demands*1, time_matrix)
 
     # select the heuristic to use
-    chosen_heuristic = aco
+    chosen_heuristic = sa
 
     # Start the optimization process
     best_solution, historic = chosen_heuristic.optimize()

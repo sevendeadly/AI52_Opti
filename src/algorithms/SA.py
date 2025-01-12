@@ -84,6 +84,7 @@ class SimulatedAnnealing(Optimizer):
             return 1.0
         return math.exp((current_cost - new_cost) / temperature)
     
+    # Process the fitness of a solution
     def process_solution_fitness(self, solution: list[Prog]) -> int:
         """
         Process the fitness of a solution.
@@ -120,9 +121,13 @@ class SimulatedAnnealing(Optimizer):
         # Initialize the temperature
         temperature = self.initial_temperature
 
+        # Process total iterations
+        total_iterations = int(math.log(self.temperature_threshold/self.initial_temperature)  / math.log(1 - self.cooling_rate))
+        current_interation:int = 1
+
         # Run the algorithm
         while temperature > self.temperature_threshold:
-            print("Temperature : ", temperature)
+            print("Iteration : ", current_interation, " / ", total_iterations)
             for _ in range(self.iterations_per_temperature):
                 # Generate a neighbor solution
                 new_solution = self.generate_neighbor(current_solution*1)
@@ -141,12 +146,13 @@ class SimulatedAnnealing(Optimizer):
                     best_solution = current_solution
                     best_cost = current_cost
 
-                
-
+            
             # Cool down the temperature
             temperature *= 1 - self.cooling_rate
             print("Best solution : ", self.process_solution_fitness(best_solution))
             # Save the fitness evolution
-            fitness_evolution.append(best_cost)
+            fitness_evolution.append(current_cost)
+
+            current_interation += 1
 
         return best_solution, fitness_evolution
