@@ -12,12 +12,13 @@ Let's assume between midnigh and 6am, there is no bus
 """
 # libraries importation
 from src.algorithms.Optimizer import Optimizer
+from src.algorithms.Logger import Logger
 from src.models.plan import Prog, generate_derivated_plan, generate_plan_on_peak
 from src.models.stations import process_global_waiting_time
 from src.models.demand import Demand
 from src.utils.constants import NUM_PROGS, PEAK_REPARTITION
 
-class TabuSearch(Optimizer):
+class TabuSearch(Optimizer, Logger):
     def __init__(
             self, 
             max_list_shape: int, 
@@ -36,6 +37,7 @@ class TabuSearch(Optimizer):
             time_matrix (list[int]): List of time intervals between each stop
             target_fitness (float): The fitness targeted by the optimisation
         """
+        super().__init__(num_iterations)
         self.max_list_shape = max_list_shape
         self.num_iterations = num_iterations
         self.target_fitness = target_fitness
@@ -104,12 +106,9 @@ class TabuSearch(Optimizer):
         # initialize the iterations and the tabou list
         current_iteration = 0
         tabou_list: list[tuple[int, int, bool]] = []
-
-        print("best_cost : ", best_cost)
         
         # Set an algorithm's breaking condition
         while current_iteration < self.num_iterations or best_cost <= self.target_fitness:
-            print("Iteration : ", current_iteration+1, " / ", self.num_iterations)
             local_best_plans: list[list[Prog]] = []
             local_tabou_moves: list[tuple[int, int, bool]] = []
             local_best_costs: list[float] = []
@@ -164,9 +163,12 @@ class TabuSearch(Optimizer):
                 best_plan = exploration_best_plan
                 best_cost = exploration_best_cost
 
+            # Save the fitness evolution metrics
             fitness_evolution.append(exploration_best_cost)
-            print("best cost : ", best_cost)
-                
+            
+            # Update the logger
+            self.update(best_cost)
+            
             current_iteration += 1
         
         return best_plan, fitness_evolution

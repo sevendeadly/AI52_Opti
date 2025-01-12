@@ -13,13 +13,14 @@ Let's assume between midnight and 6am, there is no bus
 
 # libraries importation
 from src.algorithms.Optimizer import Optimizer
+from src.algorithms.Logger import Logger
 from src.models.plan import Prog, generate_derivated_plan, generate_plan_on_peak
 from src.models.stations import process_global_waiting_time
 from src.models.demand import Demand
 from src.utils.constants import NUM_PROGS, PEAK_REPARTITION, MAX_PROG_VARIATION
 import random as rd
 
-class ParticleSwarmOptimization(Optimizer):
+class ParticleSwarmOptimization(Optimizer, Logger):
     def __init__(
             self, 
             num_particles: int, 
@@ -42,6 +43,7 @@ class ParticleSwarmOptimization(Optimizer):
             passenger_demands (list[Demand]): list of passengers demand
             time_matrix (list[int]): list of time intervals between each stop
         """
+        super().__init__(num_iterations)
         self.num_particles = num_particles
         self.num_iterations = num_iterations
         self.inertia_coefficient = inertia_coefficient
@@ -152,7 +154,6 @@ class ParticleSwarmOptimization(Optimizer):
         global_best_score: int = min(personal_best_scores)
 
         for _ in range(self.num_iterations):
-            print("Iteration : ", _ + 1, " / ", self.num_iterations)
             for i in range(self.num_particles):
                 # Update velocity
                 velocities[i] = self._update_velocity(velocities[i], particles[i], personal_best_positions[i], global_best_position)
@@ -170,7 +171,7 @@ class ParticleSwarmOptimization(Optimizer):
                     global_best_score = score
 
             # Save best fitness
-            fitness_evolution.append(global_best_score)
-            print("Best fitness : ", global_best_score)
+            fitness_evolution.append(min(personal_best_scores))
+            self.update(global_best_score)
 
         return global_best_position, fitness_evolution

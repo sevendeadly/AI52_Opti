@@ -5,12 +5,12 @@ from src.utils.time import DAYTIME
 
 # all the constraints definitions to run the program (time in minutes)
 NUM_STOPS = 18
-TIME_MATRIX: list[int] = [120, 120, 60, 240, 180, 300, 120, 60, 240, 240, 180, 300, 60, 120, 120, 240, 300]
+TIME_MATRIX: list[int] = [120, 120, 60, 120,  60, 120, 180, 60, 60, 60, 60, 120, 120, 120, 180, 180, 60]
 LOCOMOTION_CAPACITY = 80
 SERVICE_START = 6 * 60
 SERVICE_END = 24 * 60
-MIN_TIME_BETWEEN_STOPS = 1
-MAX_TIME_BETWEEN_STOPS = 5
+MIN_TIME_BETWEEN_STOPS = 1 # (in minutes)
+MAX_TIME_BETWEEN_STOPS = 3 # (in minutes)
 NUM_LOCOMOTIONS = 200
 PASSENGERS_DEMAND = 1000
 NUM_PROGS = 100

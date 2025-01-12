@@ -8,6 +8,7 @@ Paramètres clés : température initiale, taux de refroidissement, itérations 
 
 # Librairies importation
 from src.algorithms.Optimizer import Optimizer
+from src.algorithms.Logger import Logger
 import math
 import random as rd
 from src.models.plan import Prog
@@ -17,7 +18,7 @@ from src.models.stations import process_global_waiting_time
 from src.utils.constants import NUM_PROGS, PEAK_REPARTITION, MAX_PROG_VARIATION
 from copy import deepcopy
 
-class SimulatedAnnealing(Optimizer):
+class SimulatedAnnealing(Optimizer, Logger):
     def __init__(
             self, 
             initial_temperature: float, 
@@ -47,6 +48,7 @@ class SimulatedAnnealing(Optimizer):
         self.temperature_threshold = temperature_threshold
         self.time_matrix = time_matrix
         self.passengers_demand = passengers_demand
+        super().__init__(int(math.log(self.temperature_threshold/self.initial_temperature)  / math.log(1 - self.cooling_rate)))
         
 
     # Generate a neighbor solution
@@ -82,6 +84,7 @@ class SimulatedAnnealing(Optimizer):
         """
         if new_cost < current_cost:
             return 1.0
+        
         return math.exp((current_cost - new_cost) / temperature)
     
     # Process the fitness of a solution
@@ -122,12 +125,11 @@ class SimulatedAnnealing(Optimizer):
         temperature = self.initial_temperature
 
         # Process total iterations
-        total_iterations = int(math.log(self.temperature_threshold/self.initial_temperature)  / math.log(1 - self.cooling_rate))
-        current_interation:int = 1
+        total_iterations: int = int(math.log(self.temperature_threshold/self.initial_temperature)  / math.log(1 - self.cooling_rate))
+        current_iteration: int = 0
 
         # Run the algorithm
-        while temperature > self.temperature_threshold:
-            print("Iteration : ", current_interation, " / ", total_iterations)
+        while current_iteration < total_iterations:
             for _ in range(self.iterations_per_temperature):
                 # Generate a neighbor solution
                 new_solution = self.generate_neighbor(current_solution*1)
@@ -149,10 +151,12 @@ class SimulatedAnnealing(Optimizer):
             
             # Cool down the temperature
             temperature *= 1 - self.cooling_rate
-            print("Best solution : ", self.process_solution_fitness(best_solution))
             # Save the fitness evolution
             fitness_evolution.append(current_cost)
 
-            current_interation += 1
+            # Update the logger
+            self.update(best_cost)
+
+            current_iteration += 1
 
         return best_solution, fitness_evolution

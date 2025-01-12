@@ -13,6 +13,7 @@ Let's assume between midnight and 6am, there is no bus
 
 # libraries importation
 from src.algorithms.Optimizer import Optimizer
+from src.algorithms.Logger import Logger
 from src.models.plan import Prog, is_valid_plan
 from src.models.stations import process_global_waiting_time
 from src.models.demand import Demand
@@ -22,7 +23,7 @@ import random as rd
 from collections import Counter
 import numpy as np
 
-class AntColonyOptimization(Optimizer):
+class AntColonyOptimization(Optimizer, Logger):
     def __init__(
             self, 
             num_ants: int, 
@@ -48,6 +49,7 @@ class AntColonyOptimization(Optimizer):
         Returns:
             None
         """
+        super().__init__(num_iterations)
         self.num_ants = num_ants
         self.num_iterations = num_iterations
         self.evaporation_rate = rho
@@ -97,7 +99,6 @@ class AntColonyOptimization(Optimizer):
         
         return round(global_waiting_time , 5)    
 
-    
     # Update pheromone trails by ant movement
     def update_pheromone_trails(self, ant_plans: list[list[Prog]]):
         """
@@ -132,8 +133,7 @@ class AntColonyOptimization(Optimizer):
         fitness_evolution: list[float] = []
         best_plan = None
         best_fitness = float('inf')
-        for i in range(self.num_iterations):
-            print("Iteration : ", i + 1)
+        for _ in range(self.num_iterations):
             ant_plans: list[list[Prog]] = []
             # Take into account pheromone trails and visibility before initializing ants
             for _ in range(self.num_ants):
@@ -186,7 +186,6 @@ class AntColonyOptimization(Optimizer):
 
             # Update best plan
             min_fitness = min(fitnesses)
-            print("Min fitness  : ", min_fitness)
             # Track the best metrics
             fitness_evolution.append(min_fitness)
 
@@ -194,8 +193,10 @@ class AntColonyOptimization(Optimizer):
                 best_fitness = min_fitness
                 best_plan = ant_plans[fitnesses.index(min_fitness)]
 
-            print("Best fitness : ", best_fitness)
             # Update pheromone trails by evaporation and movements
             self.update_pheromone_trails(ant_plans*1)
+
+            # Update the loader
+            self.update(best_fitness)
 
         return best_plan, fitness_evolution

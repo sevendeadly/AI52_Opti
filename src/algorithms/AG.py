@@ -12,6 +12,7 @@ Let's assume between midnigh and 6am, there is no bus
 """
 # libraries importation
 from src.algorithms.Optimizer import Optimizer
+from src.algorithms.Logger import Logger
 from src.models.plan import Prog, is_valid_plan, generate_derivated_plan, generate_plan_on_peak
 from src.utils.constants import PEAK_REPARTITION, NUM_PROGS
 from src.models.demand import Demand
@@ -19,7 +20,7 @@ import random as rd
 from src.models.stations import process_global_waiting_time
 
 
-class GeneticAlgorithm(Optimizer):
+class GeneticAlgorithm(Optimizer, Logger):
     # Constructor
     def __init__(
             self, num_generations: int, 
@@ -45,6 +46,7 @@ class GeneticAlgorithm(Optimizer):
         Returns:
             None
         """
+        super().__init__(num_generations)
         self.num_generations = num_generations
         self.population_size = population_size
         self.crossover_rate = crossover_rate
@@ -205,7 +207,6 @@ class GeneticAlgorithm(Optimizer):
         new_population = elite_parents + mutated_children
         new_population.sort(key=lambda individual: self.evaluate_individual(individual))
 
-        print("Best individual : ", self.evaluate_individual(new_population[0]))
         return new_population[:self.population_size]
 
     # Optimize the transportation plan
@@ -221,11 +222,14 @@ class GeneticAlgorithm(Optimizer):
         current_population = self.generate_population()
 
         # run through all the generations
-        for iteration in range(self.num_generations):
-            print(f"Generation {iteration + 1} / {self.num_generations}")
+        for _ in range(self.num_generations):
             self.initial_population = current_population
             current_population = self.evolve_population()
+
             # Track the best metrics
-            fitness_evolution.append(self.evaluate_individual(current_population[0]))
+            best_generation_fitness = self.evaluate_individual(current_population[0])
+            fitness_evolution.append(best_generation_fitness)
+            # Update the loader
+            self.update(best_generation_fitness)
 
         return min(current_population, key=lambda individual: self.evaluate_individual(individual)), fitness_evolution
