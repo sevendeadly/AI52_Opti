@@ -8,7 +8,7 @@ Implémente l'Algorithme de Recherche Tabou pour l'optimisation des horaires de 
 Utilise une mémoire tabou pour éviter les solutions déjà explorées et favorise la recherche d'optimums locaux et globaux.
 Paramètres clés : taille de la liste tabou, critère d'arrêt, méthode de diversification.
 
-Let's assume between midnigh and 6am, there is no bus
+Let's assume between midnigh and 6am, there is no locomotions
 """
 # libraries importation
 from src.algorithms.Optimizer import Optimizer

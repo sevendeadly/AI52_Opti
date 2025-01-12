@@ -19,9 +19,9 @@ class Demand:
         Initialize a demand object.
 
         Args:
-            boarding_stop (int): the stop where the passenger is waiting (and will board the bus)
+            boarding_stop (int): the stop where the passenger is waiting (and will board the locomotion)
             stops (int): the number of stops the passenger will travel
-            direction (bool): direction of the bus (True for forward, False for backward)
+            direction (bool): direction of the vehicle (True for forward, False for backward)
             boarding_arrival (int): the time at which the passenger arrives at the boarding stop
 
         Returns:

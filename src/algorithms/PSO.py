@@ -8,7 +8,7 @@ Implements Particle Swarm Optimization for bus schedules.
 Updates positions and velocities according to the best local/global solutions.
 Key parameters: swarm size, inertia coefficient, cognitive/social factors.
 
-Let's assume between midnight and 6am, there is no bus
+Let's assume between midnight and 6am, there is no locomotions
 """
 
 # libraries importation

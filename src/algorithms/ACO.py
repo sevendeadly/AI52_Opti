@@ -8,7 +8,7 @@ Implements Ant Colony Optimization for locomotion schedules.
 Manages pheromone trails and ant movement decisions.
 Key parameters: number of ants, evaporation rate, visibility factor, pheromone factor
 
-Let's assume between midnight and 6am, there is no bus
+Let's assume between midnight and 6am, there is no locomotions
 """
 
 # libraries importation
