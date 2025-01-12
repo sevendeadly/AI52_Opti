@@ -209,13 +209,15 @@ class GeneticAlgorithm(Optimizer):
         return new_population[:self.population_size]
 
     # Optimize the transportation plan
-    def optimize(self) -> list[Prog]:
+    def optimize(self) -> tuple[list[Prog], list[float]]:
         """
         Optimize the transportation plan by running the genetic algorithm for the given number of generations
 
         Returns:
             list[Prog]: the optimized transportation plan
         """
+        # Save metrics for fitness evolution
+        fitness_evolution: list[float] = []
         current_population = self.generate_population()
 
         # run through all the generations
@@ -223,5 +225,7 @@ class GeneticAlgorithm(Optimizer):
             print(f"Generation {iteration + 1} / {self.num_generations}")
             self.initial_population = current_population
             current_population = self.evolve_population()
+            # Track the best metrics
+            fitness_evolution.append(self.evaluate_individual(current_population[0]))
 
-        return min(current_population, key=lambda individual: self.evaluate_individual(individual))
+        return min(current_population, key=lambda individual: self.evaluate_individual(individual)), fitness_evolution

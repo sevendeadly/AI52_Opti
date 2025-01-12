@@ -99,13 +99,15 @@ class SimulatedAnnealing(Optimizer):
         return round(global_waiting_time / (self.passengers_demand.__len__()*60*60), 5)
     
     # Run the Simulated Annealing algorithm
-    def optimize(self) -> list[Prog]:
+    def optimize(self) -> tuple[list[Prog], list[float]]:
         """
         Run the Simulated Annealing algorithm.
 
         Returns:
-            list[Prog]: optimized solution
+            tuple[list[Prog], list[float]]: the best solution and the fitness evolution
         """
+        # Save metrics for fitness evolution
+        fitness_evolution: list[float] = []
         # Initialize the current solution
         # current_solution = generate_random_plan(self.num_progs, sum(self.time_matrix))
         current_solution = generate_plan_on_peak(NUM_PROGS, sum(self.time_matrix), PEAK_REPARTITION)
@@ -139,8 +141,12 @@ class SimulatedAnnealing(Optimizer):
                     best_solution = current_solution
                     best_cost = current_cost
 
+                
+
             # Cool down the temperature
             temperature *= 1 - self.cooling_rate
             print("Best solution : ", self.process_solution_fitness(best_solution))
+            # Save the fitness evolution
+            fitness_evolution.append(best_cost)
 
-        return best_solution
+        return best_solution, fitness_evolution

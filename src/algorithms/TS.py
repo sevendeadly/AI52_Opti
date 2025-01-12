@@ -86,7 +86,15 @@ class TabuSearch(Optimizer):
 
         return tabou_moves[best_neighbor_index]
     
-    def optimize(self):
+    def optimize(self) -> tuple[list[Prog], list[float]]:
+        """
+        Run the Tabu Search algorithm
+
+        Returns:
+            tuple[list[Prog], list[float]]: The best solution and the fitness evolution
+        """
+        # Save metrics for fitness evolution
+        fitness_evolution: list[float] = []
         # Generate an initial solution, consider it as the best one
         best_plan = generate_plan_on_peak(NUM_PROGS, sum(self.time_matrix), PEAK_REPARTITION)
         best_cost: float = self.evaluate_solution(best_plan)
@@ -156,8 +164,9 @@ class TabuSearch(Optimizer):
                 best_plan = exploration_best_plan
                 best_cost = exploration_best_cost
 
+            fitness_evolution.append(exploration_best_cost)
             print("best cost : ", best_cost)
                 
             current_iteration += 1
         
-        return best_plan
+        return best_plan, fitness_evolution

@@ -131,7 +131,16 @@ class ParticleSwarmOptimization(Optimizer):
 
         return round(global_waiting_time, 5)
     
-    def optimize(self) -> list[Prog]:
+    def optimize(self) -> tuple[list[Prog], list[float]]:
+        """
+        Run the Particle Swarm Optimization algorithm
+
+        Returns:
+            tuple[list[Prog], list[float]]: the best solution and the fitness evolution
+        """
+        # Save metrics for fitness evolution
+        fitness_evolution: list[float] = []
+
         # Initialize particles
         tour_duration = sum(self.time_matrix)
         particles: list[list[Prog]] = [generate_plan_on_peak(NUM_PROGS, tour_duration, PEAK_REPARTITION) for _ in range(self.num_particles)]
@@ -160,6 +169,8 @@ class ParticleSwarmOptimization(Optimizer):
                     global_best_position = particles[i]
                     global_best_score = score
 
-            print("Global best score : ", global_best_score)
+            # Save best fitness
+            fitness_evolution.append(global_best_score)
+            print("Best fitness : ", global_best_score)
 
-        return global_best_position
+        return global_best_position, fitness_evolution

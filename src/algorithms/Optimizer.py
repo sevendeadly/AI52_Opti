@@ -11,5 +11,5 @@ class Optimizer(ABC):
 
     # Abstract method to optimize the plan
     @abstractmethod
-    def optimize(self) -> list[Prog]:
+    def optimize(self) -> tuple[list[Prog], list[float]]:
         pass
