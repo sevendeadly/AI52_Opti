@@ -42,22 +42,22 @@ if __name__ == '__main__':
 
     # demands = generate_demand_sample(time_matrix.__len__() + 1, PASSENGERS_DEMAND, PEAK_REPARTITION)
 
-    # save_demand_as_instance(demands, 'instance_1')
+    # save_demand_as_instance(demands, 'instance_5')
 
     demands = load_demand_from_instance('instance_1')
 
     chosen_heuristic: Optimizer = None
     # ts = TabuSearch(8, 100, demands, time_matrix, 0.05)
-    ga = GeneticAlgorithm(100, 10, 0.7, 0.1, 0.8, passengers_demand=demands*1, time_matrix=time_matrix)
+    # ga = GeneticAlgorithm(100, 10, 0.7, 0.1, 0.8, passengers_demand=demands*1, time_matrix=time_matrix)
     # sa = SimulatedAnnealing(170000, 0.05, 50, 1000, demands*1, time_matrix)
     # aco = AntColonyOptimization(20, 100, 3, 1, 0.1, demands*1, time_matrix)
-    # pso = ParticleSwarmOptimization(100, 100, 0.6, 1.5, 1, demands*1, time_matrix)
+    pso = ParticleSwarmOptimization(100, 100, 0.6, 1.5, 1, demands*1, time_matrix)
 
     # select the heuristic to use
-    chosen_heuristic = ga
+    chosen_heuristic = pso
 
     # Start the optimization process
-    print("\rGenetic Algorithm.")
+    print("\rParticle Swarm Optimization Algorithm.")
     best_solution, historic = chosen_heuristic.optimize()
 
 
@@ -68,11 +68,11 @@ if __name__ == '__main__':
     mean_waiting_time = process_global_waiting_time(best_solution, demands, time_matrix) / demands.__len__()
     hours, minutes, seconds = int(mean_waiting_time // 3600), int((mean_waiting_time % 3600) // 60), int(mean_waiting_time % 60)
 
-    print(f"\rThe meaning waiting time is estimated to {hours} hours {minutes} minutes and {seconds} seconds.")
+    print(f"\rThe average waiting time is estimated to {hours} hours {minutes} minutes and {seconds} seconds.")
 
     num_journeys = best_solution.__len__()
     used_locomotions = process_required_locomotions(best_solution).__len__()
-    print(f"\rIt takes {num_journeys} journeys satisfy by {used_locomotions} vehicles.")
+    print(f"\rIt takes {num_journeys} journeys satisfied by {used_locomotions} vehicles.")
 
     # Display the plan generated
     best_solution.sort(key=lambda prog: prog.direction)
