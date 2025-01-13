@@ -44,20 +44,20 @@ if __name__ == '__main__':
 
     # save_demand_as_instance(demands, 'instance_5')
 
-    demands = load_demand_from_instance('instance_1')
+    demands = load_demand_from_instance('instance_2')
 
     chosen_heuristic: Optimizer = None
     # ts = TabuSearch(8, 100, demands, time_matrix, 0.05)
-    # ga = GeneticAlgorithm(100, 10, 0.7, 0.1, 0.8, passengers_demand=demands*1, time_matrix=time_matrix)
+    ga = GeneticAlgorithm(100, 15, 0.7, 0.1, 0.8, passengers_demand=demands*1, time_matrix=time_matrix)
     # sa = SimulatedAnnealing(170000, 0.05, 50, 1000, demands*1, time_matrix)
     # aco = AntColonyOptimization(20, 100, 3, 1, 0.1, demands*1, time_matrix)
-    pso = ParticleSwarmOptimization(100, 100, 0.6, 1.5, 1, demands*1, time_matrix)
+    # pso = ParticleSwarmOptimization(100, 100, 0.6, 1.5, 1, demands*1, time_matrix)
 
     # select the heuristic to use
-    chosen_heuristic = pso
+    chosen_heuristic = ga
 
     # Start the optimization process
-    print("\rParticle Swarm Optimization Algorithm.")
+    print("\rGenetic Algorithm.")
     best_solution, historic = chosen_heuristic.optimize()
 
 
